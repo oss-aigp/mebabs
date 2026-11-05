@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- MeBabs-versie: 2.0.0 -->
+<!-- MeBabs-versie: 2.1.0 -->
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MeBabs</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjUwIiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9Ijg0IiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9IjE3MiIgcj0iMTUiLz48Y2lyY2xlIGN4PSIxMjgiIGN5PSIyMDYiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSIxNzIiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSI4NCIgcj0iMTUiLz4gPC9nPiA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxMjgiIHI9IjU2IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4gPHJlY3QgeD0iMTA0IiB5PSIxMDAiIHdpZHRoPSI0OCIgaGVpZ2h0PSI1OCIgcng9IjYiIGZpbGw9IiMwZjZlNzQiLz4gPHJlY3QgeD0iMTEyIiB5PSIxMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+IDxyZWN0IHg9IjExMiIgeT0iMTI0IiB3aWR0aD0iMjYiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iIzllZTZkZCIvPiA8cmVjdCB4PSIxMTIiIHk9IjEzNiIgd2lkdGg9IjMwIiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iNTAiIHI9IjE1IiBmaWxsPSIjZmZkNDAwIi8+IDwvc3ZnPiA=">
@@ -312,10 +312,11 @@ tbody tr:hover .pill,.tl li:hover .pill{background:#fff}
 .qhi{display:flex;flex-direction:column;gap:2px;padding-right:26px;border-right:1px solid rgba(255,255,255,.25)}
 .qhi b{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.01em}
 .qhi span{font-size:14px;color:#dcecf7}.qhi span b{font-size:inherit;font-weight:700}
-.qfig{position:relative;margin:0;padding-left:34px}
+.qfig{position:relative;margin:0;padding-left:34px;justify-self:end;text-align:right}
 .qfig:before{content:'\201C';position:absolute;left:0;top:-10px;font:700 46px/1 Georgia,'Times New Roman',serif;color:#8FCAE7}
 @media (max-width:820px){.quote{grid-template-columns:1fr}.qhi{border-right:0;padding-right:0;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:8px}}
 .fcard{padding:12px 16px}.fcard .filters{margin-bottom:0}.upc .upbody{padding:0 22px 6px}.upc .upbody .note{margin:8px 0 12px}
+.tomorrow{border-top-color:#8FCAE7}.tomorrow .tm{color:var(--brand2)}.tomorrow p.muted{min-height:0;padding-left:0;background:none}
 </style></head><body>
 <header><a class="logo" href="#/"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjUwIiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9Ijg0IiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9IjE3MiIgcj0iMTUiLz48Y2lyY2xlIGN4PSIxMjgiIGN5PSIyMDYiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSIxNzIiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSI4NCIgcj0iMTUiLz4gPC9nPiA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxMjgiIHI9IjU2IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4gPHJlY3QgeD0iMTA0IiB5PSIxMDAiIHdpZHRoPSI0OCIgaGVpZ2h0PSI1OCIgcng9IjYiIGZpbGw9IiMwZjZlNzQiLz4gPHJlY3QgeD0iMTEyIiB5PSIxMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+IDxyZWN0IHg9IjExMiIgeT0iMTI0IiB3aWR0aD0iMjYiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iIzllZTZkZCIvPiA8cmVjdCB4PSIxMTIiIHk9IjEzNiIgd2lkdGg9IjMwIiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iNTAiIHI9IjE1IiBmaWxsPSIjZmZkNDAwIi8+IDwvc3ZnPiA=" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div></header>
 <div class="wrap"><main id="main"></main></div>
@@ -3686,6 +3687,11 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   function renderHome() {
     var t = todayIso(), ms = A.data.meetings;
     var today = ms.filter(function (m) { return m.date === t; }).sort(function (a, b) { return (a.start || '') < (b.start || '') ? -1 : 1; });
+    function dayList(arr) { return '<ul class="tl">' + arr.map(function (m) {
+        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span><span class="tact"><span class="tst">' + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</span><span class="tjn">' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + '</span></span></li>';
+      }).join('') + '</ul>'; }
+    var tm0 = new Date(); tm0.setDate(tm0.getDate() + 1); var tmw = tm0.getFullYear() + '-' + pad(tm0.getMonth() + 1) + '-' + pad(tm0.getDate());
+    var tomorrow = ms.filter(function (m) { return m.date === tmw; }).sort(function (a, b) { return (a.start || '') < (b.start || '') ? -1 : 1; });
     var next = ms.filter(function (m) { return m.date > t; }).sort(function (a, b) { return (a.date + a.start) < (b.date + b.start) ? -1 : 1; })[0];
     var years = {}; ms.forEach(function (m) { if (m.date) years[m.date.slice(0, 4)] = 1; });
     var f = A.f, q = f.q.toLowerCase();
@@ -3703,11 +3709,10 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     h += '<div class="dropbar">Sleep een mail of agenda-uitnodiging uit Outlook naar dit venster. Er wordt dan een vergadering aangemaakt, met de stukken als bijlage.</div>';
     h += '<section class="card today"><h2>Vandaag <span class="muted">' + esc(fmtLong(t)) + '</span></h2>';
     if (today.length) {
-      h += '<ul class="tl">' + today.map(function (m) {
-        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span><span class="tact"><span class="tst">' + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</span><span class="tjn">' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + '</span></span></li>';
-      }).join('') + '</ul>';
+      h += dayList(today);
     } else h += '<p class="muted">Geen vergaderingen vandaag.' + (next ? ' De volgende is op <a href="#/v/' + esc(next.id) + '">' + esc(fmtLong(next.date)) + ': ' + esc(next.title) + '</a>.' : '') + '</p>';
     h += '</section>';
+    h += '<section class="card today tomorrow"><h2>Morgen <span class="muted">' + esc(fmtLong(tmw)) + '</span></h2>' + (tomorrow.length ? dayList(tomorrow) : '<p class="muted">Geen vergaderingen morgen.</p>') + '</section>';
     var showF = A.showUp || A.showArch || q || f.year;
     if (showF) h += '<section class="card fcard"><div class="filters"><input id="q" type="search" placeholder="Zoeken op titel, locatie, namen of aantekeningen…" value="' + esc(f.q) + '">' +
       '<select id="fYear"><option value="">Alle jaren</option>' + Object.keys(years).sort().reverse().map(function (y) { return '<option' + (f.year === y ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div></section>';
@@ -3722,13 +3727,13 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       o += rows.length ? rows.map(function (m) { return row(m, cols.map(function (c) { return c[0]; })).replace('<tr data-id="' + esc(m.id) + '">', '<tr data-id="' + esc(m.id) + '"' + (hs[m.id] ? ' class="sel"' : '') + '><td class="cb"><input type="checkbox" data-hs="' + esc(m.id) + '"' + (hs[m.id] ? ' checked' : '') + '></td>'); }).join('') : '<tr><td colspan="7" class="empty">' + empty + '</td></tr>';
       return o + '</tbody></table></div>';
     }
-    var upcoming = list.filter(function (m) { return !m.date || m.date > t; }), past = list.filter(function (m) { return m.date && m.date < t; });
+    var upcoming = list.filter(function (m) { return !m.date || m.date > tmw; }), past = list.filter(function (m) { return m.date && m.date < t; });
     A.hlists = { up: sorted(upcoming), arch: sorted(past, true) };
     h += '<section class="card arch upc"><button type="button" class="archbtn" id="upc" aria-expanded="' + (A.showUp ? 'true' : 'false') + '"><span>' + (A.showUp ? '▾' : '▸') + '</span> 📅 Volgende vergaderingen <span class="muted">' + upcoming.length + ' vergadering' + (upcoming.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showUp ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showUp) h += '<div class="upbody">' + tbl(upcoming, ms.length ? (past.length ? 'Geen komende vergaderingen' + (q || f.year ? ' met deze filters' : '') + '. Eerdere vergaderingen staan in het archief.' : 'Geen vergaderingen gevonden met deze filters.') : 'Nog geen vergaderingen. Sleep een mail naar dit venster om te beginnen.');
     if (A.showUp) h += '<p class="note">Klik op een kolomkop om te sorteren.</p></div>';
     h += '</section>';
-    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> 🗄 Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'tonen') + '</span></button>';
+    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> 🗄 Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showArch) h += tbl(past, 'Geen eerdere vergaderingen' + (q || f.year ? ' met deze filters' : '') + '.', true);
     h += '</section>';
     setHTML($('#main'), h);
