@@ -1,5 +1,6 @@
   /* ================================================================== tabblad Bestanden (alleen lezen) */
-  var FX = { folder: '', q: '', f: {}, sort: { k: 'mod', d: -1 }, sel: {}, items: null, loading: false, group: true };
+  var FX = { folder: '', q: '', f: {}, sort: { k: 'date', d: -1 }, sel: {}, items: null, loading: false, group: true, showHidden: false };
+  function fxHidden() { return A.data.fxHidden || (A.data.fxHidden = {}); } /* uit het overzicht verwijderd; het bestand zelf blijft in de vergadering */
   var TOPS = ['Vergaderingen']; /* aantekeningen, actielijst en originele mails staan niet in dit overzicht */
   function extOf(n) { var m = /\.([^.]+)$/.exec(n || ''); return m ? m[1].toLowerCase() : ''; }
   function fmtDT(t) { if (!t) return ''; var d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
@@ -43,10 +44,10 @@
     if (k === 'name') return it.name; if (k === 'kind') return it.kind; if (k === 'meet') return meetLabel(it); if (k === 'date') return it.m && it.m.date ? it.m.date : '';
     if (k === 'ext') return it.ext.toUpperCase(); if (k === 'size') return it.size; if (k === 'mod') return it.mod; if (k === 'folder') return it.top + (it.sub ? ' › ' + it.sub.replace(/\//g, ' › ') : ''); return '';
   }
-  var FXCOLS = [['name', 'Naam', 'text'], ['meet', 'Vergadering', 'text'], ['date', 'Vergaderdatum', 'text'], ['ext', 'Type', 'select'], ['size', 'Grootte', 'none'], ['mod', 'Gewijzigd', 'text']];
+  var FXCOLS = [['name', 'Naam', 'text'], ['date', 'Vergaderdatum', 'text'], ['ext', 'Type', 'select'], ['size', 'Grootte', 'none']];
   function fxShown(it, k) { if (k === 'date') return it.m && it.m.date ? fmtShort(it.m.date) : ''; if (k === 'size') return it.size ? kb(it.size) : ''; if (k === 'mod') return fmtDT(it.mod); return String(fxVal(it, k)); }
-  function fxFiltered() {
-    var q = FX.q.trim().toLowerCase(), list = FX.items.filter(function (it) {
+  function fxFiltered(src) {
+    var q = FX.q.trim().toLowerCase(), list = src.filter(function (it) {
       if (FX.folder) { var fp = it.top + (it.sub ? '/' + it.sub : ''); if (fp !== FX.folder && fp.indexOf(FX.folder + '/') !== 0) return false; }
       if (q && (it.name + ' ' + meetLabel(it) + ' ' + it.kind).toLowerCase().indexOf(q) < 0) return false;
       for (var k in FX.f) { var v = FX.f[k]; if (!v) continue; var col = FXCOLS.filter(function (c) { return c[0] === k; })[0]; if (col && col[2] === 'select') { if (String(fxVal(it, k)) !== v) return false; } else if (fxShown(it, k).toLowerCase().indexOf(v.toLowerCase()) < 0) return false; }
@@ -95,7 +96,9 @@
       if ((location.hash || '') !== '#/bestanden') return;
       FX.sel = {};
     }
-    var all = FX.items, flat = fxFiltered(), list = FX.group ? groupItems(flat) : (flat.forEach(function (it) { it.vers = [it]; }), flat);
+    var hid = fxHidden(), nHid = FX.items.filter(function (it) { return hid[it.id]; }).length;
+    if (!nHid) FX.showHidden = false;
+    var all = FX.items.filter(function (it) { return FX.showHidden ? !!hid[it.id] : !hid[it.id]; }), flat = fxFiltered(all), list = FX.group ? groupItems(flat) : (flat.forEach(function (it) { it.vers = [it]; }), flat);
     // mappenboom
     var tree = {}; all.forEach(function (it) { var t = tree[it.top] || (tree[it.top] = { n: 0, subs: {} }); t.n++; if (it.sub) { var s0 = it.sub.split('/')[0]; t.subs[s0] = t.subs[s0] || { n: 0, label: it.top === 'Vergaderingen' && it.m ? (it.m.date ? fmtShort(it.m.date) + ' ' : '') + it.m.title : s0 }; t.subs[s0].n++; } });
     var th = '<button type="button" class="fxt' + (!FX.folder ? ' on' : '') + '" data-folder="">🗂 Alle bestanden <small>' + all.length + '</small></button>';
@@ -110,7 +113,9 @@
     h += '<div class="fx-wrap"><nav class="card fxtree">' + th + '</nav><section class="card fxmain">';
     h += '<div class="fxbar"><input type="search" id="fxq" placeholder="Zoeken in bestandsnamen en vergaderingen…" value="' + esc(FX.q) + '">' +
       '<span class="fxsel">' + (nSel ? nSel + ' geselecteerd' : '') + '</span>' +
-      '<button class="btn sm" data-fa="open"' + (nSel ? '' : ' disabled') + '>👁 Openen</button><button class="btn sm" data-fa="dl"' + (nSel ? '' : ' disabled') + '>⤓ Downloaden</button><button class="btn sm" data-fa="mail"' + (nSel ? '' : ' disabled') + '>✉ Mailen</button></div>';
+      '<button class="btn sm" data-fa="open"' + (nSel ? '' : ' disabled') + '>👁 Openen</button><button class="btn sm" data-fa="dl"' + (nSel ? '' : ' disabled') + '>⤓ Downloaden</button><button class="btn sm" data-fa="mail"' + (nSel ? '' : ' disabled') + '>✉ Mailen</button>' +
+      (FX.showHidden ? '<button class="btn sm" data-fa="restore"' + (nSel ? '' : ' disabled') + ' title="Weer tonen in het overzicht">↩ Terugzetten</button>' : '<button class="btn sm" data-fa="hide"' + (nSel ? '' : ' disabled') + ' title="Alleen uit dit overzicht halen. Het bestand blijft in de vergadering.">🗑 Verwijderen</button>') + '</div>';
+    if (nHid) h += '<div class="fxhid">' + (FX.showHidden ? 'Je ziet de bestanden die uit het overzicht zijn verwijderd. <button type="button" class="link" id="fxhid">‹ Terug naar alle bestanden</button>' : '<button type="button" class="link" id="fxhid">Verwijderd (' + nHid + ') tonen</button>') + '</div>';
     h += '<div class="tw fxtw"><table class="fxtb"><thead><tr><th class="cb"><input type="checkbox" id="fxall"' + (list.length && list.every(function (it) { return FX.sel[it.id]; }) ? ' checked' : '') + ' title="Alles selecteren"></th>' +
       FXCOLS.map(function (c) { var on = FX.sort.k === c[0]; return '<th class="c-' + c[0] + (on ? ' on' : '') + '" data-fs="' + c[0] + '">' + c[1] + '<i>' + (on ? (FX.sort.d < 0 ? '▼' : '▲') : '↕') + '</i></th>'; }).join('') + '<th class="c-go">Ga naar</th><th></th></tr>';
     h += '<tr class="fltr"><th></th>' + FXCOLS.map(function (c) {
@@ -122,12 +127,12 @@
     h += list.length ? list.map(function (it, i) {
       return '<tr data-fi="' + i + '" class="' + (FX.sel[it.id] ? 'sel' : '') + '"><td class="cb"><input type="checkbox"' + (FX.sel[it.id] ? ' checked' : '') + '></td>' +
         '<td class="c-name">' + esc(it.name) + (it.vers.length > 1 ? ' <button type="button" class="vbadge" data-vm="1" title="Versies tonen (of klik met de rechtermuisknop)">' + it.vers.length + ' versies ▾</button>' : '') + '</td>' +
-        '<td class="c-meet" title="' + esc(meetLabel(it)) + '">' + esc(meetLabel(it)) + '</td><td class="c-date">' + esc(fxShown(it, 'date')) + '</td>' +
-        '<td class="c-ext">' + esc(it.vers.map(function (v) { return v.ext.toUpperCase(); }).filter(function (e, i, a) { return a.indexOf(e) === i; }).join(', ')) + '</td><td class="c-size">' + esc(fxShown(it, 'size')) + '</td><td class="c-mod">' + esc(fxShown(it, 'mod')) + '</td>' +
-        '<td class="c-go">' + (it.m ? '<button type="button" class="btn sm go" data-go="1" title="Open de vergadering' + (it.kind === 'Stuk' || it.kind === 'PDF-versie' || it.kind === 'Vorige versie' ? ' met dit stuk in de viewer' : '') + '">Vergadering ›</button>' : '') + '</td><td class="fxact"><button class="link" data-ra="open" title="Openen">👁</button><button class="link" data-ra="dl" title="Downloaden">⤓</button><button class="link" data-ra="mail" title="Mailen">✉</button></td></tr>';
-    }).join('') : '<tr><td colspan="9" class="empty">' + (all.length ? 'Geen bestanden met deze zoekopdracht of filters.' : 'Nog geen bestanden.') + '</td></tr>';
+        '<td class="c-date">' + esc(fxShown(it, 'date')) + '</td>' +
+        '<td class="c-ext">' + esc(it.vers.map(function (v) { return v.ext.toUpperCase(); }).filter(function (e, i, a) { return a.indexOf(e) === i; }).join(', ')) + '</td><td class="c-size">' + esc(fxShown(it, 'size')) + '</td>' +
+        '<td class="c-go">' + (it.m ? '<button type="button" class="btn sm go" data-go="1" title="Open de vergadering' + (it.kind === 'Stuk' || it.kind === 'PDF-versie' || it.kind === 'Vorige versie' ? ' met dit stuk in de viewer' : '') + '">Vergadering ›</button>' : '') + '</td><td class="fxact"><button class="link" data-ra="open" title="Openen">👁</button><button class="link" data-ra="dl" title="Downloaden">⤓</button><button class="link" data-ra="mail" title="Mailen">✉</button>' + (FX.showHidden ? '<button class="link" data-ra="restore" title="Terugzetten in het overzicht">↩</button>' : '<button class="link" data-ra="hide" title="Uit het overzicht verwijderen (blijft in de vergadering)">🗑</button>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="' + (FXCOLS.length + 3) + '" class="empty">' + (all.length ? 'Geen bestanden met deze zoekopdracht of filters.' : 'Nog geen bestanden.') + '</td></tr>';
     h += '</tbody></table></div><p class="note">' + list.length + (FX.group ? ' regels (' + flat.length + ' bestanden)' : ' van ' + all.length + ' bestanden') + ' · alleen lezen · dubbelklik om te openen · rechtermuisknop toont de versies</p></section></div>';
-    h += '<div class="snzmenu" id="mailmenu" hidden></div><div class="vermenu" id="vermenu" hidden></div>';
+    h += '<div class="vermenu" id="vermenu" hidden></div>';
     setHTML(main, h);
     $$('[data-folder]').forEach(function (b) { b.onclick = function () { FX.folder = b.dataset.folder; renderFiles(); }; });
     $('#fxre').onclick = function () { renderFiles(true); };
@@ -145,7 +150,7 @@
         if (e.target.closest('a')) return;
         if (e.target.closest('[data-go]')) { e.stopPropagation(); goMeeting(it); return; }
         var vm = e.target.closest('[data-vm]'); if (vm) { e.stopPropagation(); var vr = vm.getBoundingClientRect(); showVersions(it, vr.left, vr.bottom + 4); return; }
-        var ra = e.target.closest('[data-ra]'); if (ra) { e.stopPropagation(); fileAction(ra.dataset.ra, [it], ra); return; }
+        var ra = e.target.closest('[data-ra]'); if (ra) { e.stopPropagation(); fileAction(ra.dataset.ra, ra.dataset.ra === 'hide' || ra.dataset.ra === 'restore' ? it.vers : [it], ra); return; }
         if (e.target.type === 'checkbox' || e.ctrlKey || e.metaKey) { if (FX.sel[it.id]) delete FX.sel[it.id]; else FX.sel[it.id] = 1; }
         else { FX.sel = {}; FX.sel[it.id] = 1; }
         renderFiles();
@@ -153,7 +158,11 @@
       tr.oncontextmenu = function (e) { e.preventDefault(); showVersions(it, e.clientX, e.clientY); };
       tr.ondblclick = function (e) { if (!e.target.closest('a,button,input')) fileAction('open', [it]); };
     });
-    $$('[data-fa]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); fileAction(b.dataset.fa, FX.items.filter(function (it) { return FX.sel[it.id]; }), b); }; });
+    $$('[data-fa]').forEach(function (b) { b.onclick = function (e) {
+      e.stopPropagation(); var a = b.dataset.fa, picked = list.filter(function (it) { return FX.sel[it.id]; });
+      fileAction(a, a === 'hide' || a === 'restore' ? [].concat.apply([], picked.map(function (it) { return it.vers; })) : picked, b);
+    }; });
+    var hb = $('#fxhid'); if (hb) hb.onclick = function () { FX.showHidden = !FX.showHidden; FX.sel = {}; renderFiles(); };
     if (!A.mailBound) { A.mailBound = true; D.addEventListener('click', function (e) { var mn = $('#mailmenu'); if (mn && !mn.hidden && !e.target.closest('#mailmenu')) mn.hidden = true; var vn = $('#vermenu'); if (vn && !vn.hidden && !e.target.closest('#vermenu')) vn.hidden = true; }); D.addEventListener('keydown', function (e) { var vn = $('#vermenu'); if (e.key === 'Escape' && vn) vn.hidden = true; }); W.addEventListener('scroll', function () { var vn = $('#vermenu'); if (vn) vn.hidden = true; }, true); }
   }
   function goMeeting(it) {
@@ -192,21 +201,16 @@
   }
   async function fileAction(a, items, anchor) {
     if (!items.length) return;
+    if (a === 'hide' || a === 'restore') {
+      var hd = fxHidden(); items.forEach(function (it) { if (a === 'hide') hd[it.id] = 1; else delete hd[it.id]; });
+      FX.sel = {}; await persist(); renderFiles();
+      toast(a === 'hide' ? (items.length === 1 ? '"' + items[0].name + '" is' : items.length + ' bestanden zijn') + ' uit het overzicht gehaald. In de vergadering staan ze er nog. Terugzetten kan via "Verwijderd tonen".' : 'Weer zichtbaar in het overzicht.', 'ok');
+      return;
+    }
     if (a === 'open') { if (items.length > 5 && !confirm(items.length + ' bestanden openen in nieuwe tabbladen?')) return; for (var i = 0; i < items.length; i++) { await openItem(items[i]); } return; }
     if (a === 'dl') { for (var j = 0; j < items.length; j++) { dl(await items[j].get(), items[j].name); await sleep(350); } if (items.length > 1) toast(items.length + ' bestanden staan in je map Downloads. Vraagt Edge om toestemming voor meerdere downloads? Klik dan op Toestaan.', 'ok'); return; }
     if (a === 'mail') {
-      var menu = $('#mailmenu'), r = (anchor || $('[data-fa=mail]')).getBoundingClientRect(), files = null;
-      var canShare = false;
-      try { files = await Promise.all(items.map(async function (it) { var f = await it.get(); return new File([f], it.name, { type: guessMime(it.name) }); })); canShare = !!(navigator.canShare && navigator.canShare({ files: files })); } catch (e) {}
-      setHTML(menu, '<button type="button" data-mm="eml">Nieuwe mail in Outlook<small>met ' + (items.length === 1 ? 'bijlage' : items.length + ' bijlagen') + '</small></button>' + (canShare ? '<button type="button" data-mm="share">Windows Delen…<small>Outlook, Teams, …</small></button>' : ''));
-      menu.hidden = false; menu.style.top = (r.bottom + W.scrollY + 4) + 'px'; menu.style.left = Math.max(8, r.right + W.scrollX - 240) + 'px';
-      $$('[data-mm]', menu).forEach(function (b) {
-        b.onclick = async function () {
-          menu.hidden = true;
-          if (b.dataset.mm === 'share') { try { await navigator.share({ files: files, title: items.length === 1 ? items[0].name : 'Bestanden uit MeBabs' }); } catch (e) { if (e.name !== 'AbortError') toast('Delen lukte niet: ' + (e.message || e), 'warn'); } return; }
-          try { var em = await buildEml(items); dl(em.blob, em.name); toast('Open het gedownloade bestand "' + em.name + '" (onderaan of in Downloads). Outlook opent dan een nieuwe mail met de bijlage, klaar om te versturen.', 'ok'); }
-          catch (e) { toast('Mail maken mislukt: ' + (e.message || e), 'err'); }
-        };
-      });
+      try { var em = await buildEml(items); dl(em.blob, em.name); toast('Open het gedownloade bestand "' + em.name + '" (onderaan of in Downloads). Outlook opent dan een nieuwe mail met ' + (items.length === 1 ? 'de bijlage' : 'de ' + items.length + ' bijlagen') + ', klaar om te versturen.', 'ok'); }
+      catch (e) { toast('Mail maken mislukt: ' + (e.message || e), 'err'); }
     }
   }

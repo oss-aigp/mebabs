@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- MeBabs-versie: 1.4.0 -->
+<!-- MeBabs-versie: 1.6.2 -->
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MeBabs</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjUwIiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9Ijg0IiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9IjE3MiIgcj0iMTUiLz48Y2lyY2xlIGN4PSIxMjgiIGN5PSIyMDYiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSIxNzIiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSI4NCIgcj0iMTUiLz4gPC9nPiA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxMjgiIHI9IjU2IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4gPHJlY3QgeD0iMTA0IiB5PSIxMDAiIHdpZHRoPSI0OCIgaGVpZ2h0PSI1OCIgcng9IjYiIGZpbGw9IiMwZjZlNzQiLz4gPHJlY3QgeD0iMTEyIiB5PSIxMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+IDxyZWN0IHg9IjExMiIgeT0iMTI0IiB3aWR0aD0iMjYiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iIzllZTZkZCIvPiA8cmVjdCB4PSIxMTIiIHk9IjEzNiIgd2lkdGg9IjMwIiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iNTAiIHI9IjE1IiBmaWxsPSIjZmZkNDAwIi8+IDwvc3ZnPiA=">
@@ -72,7 +72,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}tbody
 .pvmenu{position:absolute;right:0;top:34px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:10;display:flex;flex-direction:column;min-width:260px;padding:4px}.pvmenu[hidden]{display:none}
 .pvmenu button{background:none;border:0;text-align:left;padding:8px 10px;font:inherit;color:var(--ink);cursor:pointer;border-radius:5px}.pvmenu button:hover{background:var(--soft)}
 .pvhint{font-size:12px;color:var(--mute);padding:5px 12px;border-bottom:1px solid var(--line);background:var(--row)}
-.pvpages{flex:1;overflow:auto;background:#5b5f66;padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.pvpages{flex:1;overflow:auto;background:#5b5f66;padding:16px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}.pvpages>.pgw{margin-left:auto;margin-right:auto}
 .pvmsg{margin:auto;color:#eef1f5;text-align:center;line-height:1.7;padding:20px}.card>.pvmsg{color:var(--mute)}.pvmsg .btn{margin-top:10px}
 .pg{position:relative;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.pg canvas{display:block}.pgn{position:absolute;right:-2px;bottom:-18px;font-size:10px;color:#d0d4da}
 .anl[data-tool=pen],.anl[data-tool=hl]{cursor:crosshair}.anl[data-tool=text]{cursor:text}.anl[data-tool=erase]{cursor:pointer}
@@ -192,6 +192,9 @@ main.detail .ws>.card{height:100%;max-height:none;position:static;margin-bottom:
 code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:12px}
 @media (max-width:820px){.wrap{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}aside .sub,aside .storebox,aside #addType{display:none}main{padding:16px}
  .c-type,.c-end,.c-location,.c-files{display:none}.form .row{grid-template-columns:1fr;gap:2px}.lb{padding:0}header .who{display:none}}
+#pv.max{position:fixed!important;inset:12px!important;width:auto!important;height:auto!important;max-height:none!important;min-height:0!important;z-index:45;margin:0;box-shadow:0 0 0 100vmax rgba(10,15,22,.62),0 14px 44px rgba(0,0,0,.45)}.tl.mx{display:inline-flex;align-items:center;justify-content:center;padding:6px 7px}.mxi{display:block;width:13px;height:13px;background:linear-gradient(currentColor,currentColor) 0 0/5px 2px no-repeat,linear-gradient(currentColor,currentColor) 0 0/2px 5px no-repeat,linear-gradient(currentColor,currentColor) 100% 0/5px 2px no-repeat,linear-gradient(currentColor,currentColor) 100% 0/2px 5px no-repeat,linear-gradient(currentColor,currentColor) 0 100%/5px 2px no-repeat,linear-gradient(currentColor,currentColor) 0 100%/2px 5px no-repeat,linear-gradient(currentColor,currentColor) 100% 100%/5px 2px no-repeat,linear-gradient(currentColor,currentColor) 100% 100%/2px 5px no-repeat}
+.fxhid{font-size:12.5px;color:var(--mute);margin:-2px 0 8px}.fxhid .link{font-size:12.5px}
+.tact{display:grid;grid-template-columns:96px auto;gap:12px;align-items:center;flex:none}.tst{justify-self:end}.tjn{min-width:96px}.tl li .tact .join{margin-left:0}
 </style></head><body>
 <header><a class="logo" href="#/"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjUwIiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9Ijg0IiByPSIxNSIvPjxjaXJjbGUgY3g9IjE5NCIgY3k9IjE3MiIgcj0iMTUiLz48Y2lyY2xlIGN4PSIxMjgiIGN5PSIyMDYiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSIxNzIiIHI9IjE1Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSI4NCIgcj0iMTUiLz4gPC9nPiA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxMjgiIHI9IjU2IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4gPHJlY3QgeD0iMTA0IiB5PSIxMDAiIHdpZHRoPSI0OCIgaGVpZ2h0PSI1OCIgcng9IjYiIGZpbGw9IiMwZjZlNzQiLz4gPHJlY3QgeD0iMTEyIiB5PSIxMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+IDxyZWN0IHg9IjExMiIgeT0iMTI0IiB3aWR0aD0iMjYiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iIzllZTZkZCIvPiA8cmVjdCB4PSIxMTIiIHk9IjEzNiIgd2lkdGg9IjMwIiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iNTAiIHI9IjE1IiBmaWxsPSIjZmZkNDAwIi8+IDwvc3ZnPiA=" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div></header>
 <div class="wrap"><main id="main"></main></div>
@@ -2142,7 +2145,8 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   }
 
   /* ================================================================== tabblad Bestanden (alleen lezen) */
-  var FX = { folder: '', q: '', f: {}, sort: { k: 'mod', d: -1 }, sel: {}, items: null, loading: false, group: true };
+  var FX = { folder: '', q: '', f: {}, sort: { k: 'date', d: -1 }, sel: {}, items: null, loading: false, group: true, showHidden: false };
+  function fxHidden() { return A.data.fxHidden || (A.data.fxHidden = {}); } /* uit het overzicht verwijderd; het bestand zelf blijft in de vergadering */
   var TOPS = ['Vergaderingen']; /* aantekeningen, actielijst en originele mails staan niet in dit overzicht */
   function extOf(n) { var m = /\.([^.]+)$/.exec(n || ''); return m ? m[1].toLowerCase() : ''; }
   function fmtDT(t) { if (!t) return ''; var d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
@@ -2186,10 +2190,10 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     if (k === 'name') return it.name; if (k === 'kind') return it.kind; if (k === 'meet') return meetLabel(it); if (k === 'date') return it.m && it.m.date ? it.m.date : '';
     if (k === 'ext') return it.ext.toUpperCase(); if (k === 'size') return it.size; if (k === 'mod') return it.mod; if (k === 'folder') return it.top + (it.sub ? ' › ' + it.sub.replace(/\//g, ' › ') : ''); return '';
   }
-  var FXCOLS = [['name', 'Naam', 'text'], ['meet', 'Vergadering', 'text'], ['date', 'Vergaderdatum', 'text'], ['ext', 'Type', 'select'], ['size', 'Grootte', 'none'], ['mod', 'Gewijzigd', 'text']];
+  var FXCOLS = [['name', 'Naam', 'text'], ['date', 'Vergaderdatum', 'text'], ['ext', 'Type', 'select'], ['size', 'Grootte', 'none']];
   function fxShown(it, k) { if (k === 'date') return it.m && it.m.date ? fmtShort(it.m.date) : ''; if (k === 'size') return it.size ? kb(it.size) : ''; if (k === 'mod') return fmtDT(it.mod); return String(fxVal(it, k)); }
-  function fxFiltered() {
-    var q = FX.q.trim().toLowerCase(), list = FX.items.filter(function (it) {
+  function fxFiltered(src) {
+    var q = FX.q.trim().toLowerCase(), list = src.filter(function (it) {
       if (FX.folder) { var fp = it.top + (it.sub ? '/' + it.sub : ''); if (fp !== FX.folder && fp.indexOf(FX.folder + '/') !== 0) return false; }
       if (q && (it.name + ' ' + meetLabel(it) + ' ' + it.kind).toLowerCase().indexOf(q) < 0) return false;
       for (var k in FX.f) { var v = FX.f[k]; if (!v) continue; var col = FXCOLS.filter(function (c) { return c[0] === k; })[0]; if (col && col[2] === 'select') { if (String(fxVal(it, k)) !== v) return false; } else if (fxShown(it, k).toLowerCase().indexOf(v.toLowerCase()) < 0) return false; }
@@ -2238,7 +2242,9 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       if ((location.hash || '') !== '#/bestanden') return;
       FX.sel = {};
     }
-    var all = FX.items, flat = fxFiltered(), list = FX.group ? groupItems(flat) : (flat.forEach(function (it) { it.vers = [it]; }), flat);
+    var hid = fxHidden(), nHid = FX.items.filter(function (it) { return hid[it.id]; }).length;
+    if (!nHid) FX.showHidden = false;
+    var all = FX.items.filter(function (it) { return FX.showHidden ? !!hid[it.id] : !hid[it.id]; }), flat = fxFiltered(all), list = FX.group ? groupItems(flat) : (flat.forEach(function (it) { it.vers = [it]; }), flat);
     // mappenboom
     var tree = {}; all.forEach(function (it) { var t = tree[it.top] || (tree[it.top] = { n: 0, subs: {} }); t.n++; if (it.sub) { var s0 = it.sub.split('/')[0]; t.subs[s0] = t.subs[s0] || { n: 0, label: it.top === 'Vergaderingen' && it.m ? (it.m.date ? fmtShort(it.m.date) + ' ' : '') + it.m.title : s0 }; t.subs[s0].n++; } });
     var th = '<button type="button" class="fxt' + (!FX.folder ? ' on' : '') + '" data-folder="">🗂 Alle bestanden <small>' + all.length + '</small></button>';
@@ -2253,7 +2259,9 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     h += '<div class="fx-wrap"><nav class="card fxtree">' + th + '</nav><section class="card fxmain">';
     h += '<div class="fxbar"><input type="search" id="fxq" placeholder="Zoeken in bestandsnamen en vergaderingen…" value="' + esc(FX.q) + '">' +
       '<span class="fxsel">' + (nSel ? nSel + ' geselecteerd' : '') + '</span>' +
-      '<button class="btn sm" data-fa="open"' + (nSel ? '' : ' disabled') + '>👁 Openen</button><button class="btn sm" data-fa="dl"' + (nSel ? '' : ' disabled') + '>⤓ Downloaden</button><button class="btn sm" data-fa="mail"' + (nSel ? '' : ' disabled') + '>✉ Mailen</button></div>';
+      '<button class="btn sm" data-fa="open"' + (nSel ? '' : ' disabled') + '>👁 Openen</button><button class="btn sm" data-fa="dl"' + (nSel ? '' : ' disabled') + '>⤓ Downloaden</button><button class="btn sm" data-fa="mail"' + (nSel ? '' : ' disabled') + '>✉ Mailen</button>' +
+      (FX.showHidden ? '<button class="btn sm" data-fa="restore"' + (nSel ? '' : ' disabled') + ' title="Weer tonen in het overzicht">↩ Terugzetten</button>' : '<button class="btn sm" data-fa="hide"' + (nSel ? '' : ' disabled') + ' title="Alleen uit dit overzicht halen. Het bestand blijft in de vergadering.">🗑 Verwijderen</button>') + '</div>';
+    if (nHid) h += '<div class="fxhid">' + (FX.showHidden ? 'Je ziet de bestanden die uit het overzicht zijn verwijderd. <button type="button" class="link" id="fxhid">‹ Terug naar alle bestanden</button>' : '<button type="button" class="link" id="fxhid">Verwijderd (' + nHid + ') tonen</button>') + '</div>';
     h += '<div class="tw fxtw"><table class="fxtb"><thead><tr><th class="cb"><input type="checkbox" id="fxall"' + (list.length && list.every(function (it) { return FX.sel[it.id]; }) ? ' checked' : '') + ' title="Alles selecteren"></th>' +
       FXCOLS.map(function (c) { var on = FX.sort.k === c[0]; return '<th class="c-' + c[0] + (on ? ' on' : '') + '" data-fs="' + c[0] + '">' + c[1] + '<i>' + (on ? (FX.sort.d < 0 ? '▼' : '▲') : '↕') + '</i></th>'; }).join('') + '<th class="c-go">Ga naar</th><th></th></tr>';
     h += '<tr class="fltr"><th></th>' + FXCOLS.map(function (c) {
@@ -2265,12 +2273,12 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     h += list.length ? list.map(function (it, i) {
       return '<tr data-fi="' + i + '" class="' + (FX.sel[it.id] ? 'sel' : '') + '"><td class="cb"><input type="checkbox"' + (FX.sel[it.id] ? ' checked' : '') + '></td>' +
         '<td class="c-name">' + esc(it.name) + (it.vers.length > 1 ? ' <button type="button" class="vbadge" data-vm="1" title="Versies tonen (of klik met de rechtermuisknop)">' + it.vers.length + ' versies ▾</button>' : '') + '</td>' +
-        '<td class="c-meet" title="' + esc(meetLabel(it)) + '">' + esc(meetLabel(it)) + '</td><td class="c-date">' + esc(fxShown(it, 'date')) + '</td>' +
-        '<td class="c-ext">' + esc(it.vers.map(function (v) { return v.ext.toUpperCase(); }).filter(function (e, i, a) { return a.indexOf(e) === i; }).join(', ')) + '</td><td class="c-size">' + esc(fxShown(it, 'size')) + '</td><td class="c-mod">' + esc(fxShown(it, 'mod')) + '</td>' +
-        '<td class="c-go">' + (it.m ? '<button type="button" class="btn sm go" data-go="1" title="Open de vergadering' + (it.kind === 'Stuk' || it.kind === 'PDF-versie' || it.kind === 'Vorige versie' ? ' met dit stuk in de viewer' : '') + '">Vergadering ›</button>' : '') + '</td><td class="fxact"><button class="link" data-ra="open" title="Openen">👁</button><button class="link" data-ra="dl" title="Downloaden">⤓</button><button class="link" data-ra="mail" title="Mailen">✉</button></td></tr>';
-    }).join('') : '<tr><td colspan="9" class="empty">' + (all.length ? 'Geen bestanden met deze zoekopdracht of filters.' : 'Nog geen bestanden.') + '</td></tr>';
+        '<td class="c-date">' + esc(fxShown(it, 'date')) + '</td>' +
+        '<td class="c-ext">' + esc(it.vers.map(function (v) { return v.ext.toUpperCase(); }).filter(function (e, i, a) { return a.indexOf(e) === i; }).join(', ')) + '</td><td class="c-size">' + esc(fxShown(it, 'size')) + '</td>' +
+        '<td class="c-go">' + (it.m ? '<button type="button" class="btn sm go" data-go="1" title="Open de vergadering' + (it.kind === 'Stuk' || it.kind === 'PDF-versie' || it.kind === 'Vorige versie' ? ' met dit stuk in de viewer' : '') + '">Vergadering ›</button>' : '') + '</td><td class="fxact"><button class="link" data-ra="open" title="Openen">👁</button><button class="link" data-ra="dl" title="Downloaden">⤓</button><button class="link" data-ra="mail" title="Mailen">✉</button>' + (FX.showHidden ? '<button class="link" data-ra="restore" title="Terugzetten in het overzicht">↩</button>' : '<button class="link" data-ra="hide" title="Uit het overzicht verwijderen (blijft in de vergadering)">🗑</button>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="' + (FXCOLS.length + 3) + '" class="empty">' + (all.length ? 'Geen bestanden met deze zoekopdracht of filters.' : 'Nog geen bestanden.') + '</td></tr>';
     h += '</tbody></table></div><p class="note">' + list.length + (FX.group ? ' regels (' + flat.length + ' bestanden)' : ' van ' + all.length + ' bestanden') + ' · alleen lezen · dubbelklik om te openen · rechtermuisknop toont de versies</p></section></div>';
-    h += '<div class="snzmenu" id="mailmenu" hidden></div><div class="vermenu" id="vermenu" hidden></div>';
+    h += '<div class="vermenu" id="vermenu" hidden></div>';
     setHTML(main, h);
     $$('[data-folder]').forEach(function (b) { b.onclick = function () { FX.folder = b.dataset.folder; renderFiles(); }; });
     $('#fxre').onclick = function () { renderFiles(true); };
@@ -2288,7 +2296,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
         if (e.target.closest('a')) return;
         if (e.target.closest('[data-go]')) { e.stopPropagation(); goMeeting(it); return; }
         var vm = e.target.closest('[data-vm]'); if (vm) { e.stopPropagation(); var vr = vm.getBoundingClientRect(); showVersions(it, vr.left, vr.bottom + 4); return; }
-        var ra = e.target.closest('[data-ra]'); if (ra) { e.stopPropagation(); fileAction(ra.dataset.ra, [it], ra); return; }
+        var ra = e.target.closest('[data-ra]'); if (ra) { e.stopPropagation(); fileAction(ra.dataset.ra, ra.dataset.ra === 'hide' || ra.dataset.ra === 'restore' ? it.vers : [it], ra); return; }
         if (e.target.type === 'checkbox' || e.ctrlKey || e.metaKey) { if (FX.sel[it.id]) delete FX.sel[it.id]; else FX.sel[it.id] = 1; }
         else { FX.sel = {}; FX.sel[it.id] = 1; }
         renderFiles();
@@ -2296,7 +2304,11 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       tr.oncontextmenu = function (e) { e.preventDefault(); showVersions(it, e.clientX, e.clientY); };
       tr.ondblclick = function (e) { if (!e.target.closest('a,button,input')) fileAction('open', [it]); };
     });
-    $$('[data-fa]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); fileAction(b.dataset.fa, FX.items.filter(function (it) { return FX.sel[it.id]; }), b); }; });
+    $$('[data-fa]').forEach(function (b) { b.onclick = function (e) {
+      e.stopPropagation(); var a = b.dataset.fa, picked = list.filter(function (it) { return FX.sel[it.id]; });
+      fileAction(a, a === 'hide' || a === 'restore' ? [].concat.apply([], picked.map(function (it) { return it.vers; })) : picked, b);
+    }; });
+    var hb = $('#fxhid'); if (hb) hb.onclick = function () { FX.showHidden = !FX.showHidden; FX.sel = {}; renderFiles(); };
     if (!A.mailBound) { A.mailBound = true; D.addEventListener('click', function (e) { var mn = $('#mailmenu'); if (mn && !mn.hidden && !e.target.closest('#mailmenu')) mn.hidden = true; var vn = $('#vermenu'); if (vn && !vn.hidden && !e.target.closest('#vermenu')) vn.hidden = true; }); D.addEventListener('keydown', function (e) { var vn = $('#vermenu'); if (e.key === 'Escape' && vn) vn.hidden = true; }); W.addEventListener('scroll', function () { var vn = $('#vermenu'); if (vn) vn.hidden = true; }, true); }
   }
   function goMeeting(it) {
@@ -2335,22 +2347,17 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   }
   async function fileAction(a, items, anchor) {
     if (!items.length) return;
+    if (a === 'hide' || a === 'restore') {
+      var hd = fxHidden(); items.forEach(function (it) { if (a === 'hide') hd[it.id] = 1; else delete hd[it.id]; });
+      FX.sel = {}; await persist(); renderFiles();
+      toast(a === 'hide' ? (items.length === 1 ? '"' + items[0].name + '" is' : items.length + ' bestanden zijn') + ' uit het overzicht gehaald. In de vergadering staan ze er nog. Terugzetten kan via "Verwijderd tonen".' : 'Weer zichtbaar in het overzicht.', 'ok');
+      return;
+    }
     if (a === 'open') { if (items.length > 5 && !confirm(items.length + ' bestanden openen in nieuwe tabbladen?')) return; for (var i = 0; i < items.length; i++) { await openItem(items[i]); } return; }
     if (a === 'dl') { for (var j = 0; j < items.length; j++) { dl(await items[j].get(), items[j].name); await sleep(350); } if (items.length > 1) toast(items.length + ' bestanden staan in je map Downloads. Vraagt Edge om toestemming voor meerdere downloads? Klik dan op Toestaan.', 'ok'); return; }
     if (a === 'mail') {
-      var menu = $('#mailmenu'), r = (anchor || $('[data-fa=mail]')).getBoundingClientRect(), files = null;
-      var canShare = false;
-      try { files = await Promise.all(items.map(async function (it) { var f = await it.get(); return new File([f], it.name, { type: guessMime(it.name) }); })); canShare = !!(navigator.canShare && navigator.canShare({ files: files })); } catch (e) {}
-      setHTML(menu, '<button type="button" data-mm="eml">Nieuwe mail in Outlook<small>met ' + (items.length === 1 ? 'bijlage' : items.length + ' bijlagen') + '</small></button>' + (canShare ? '<button type="button" data-mm="share">Windows Delen…<small>Outlook, Teams, …</small></button>' : ''));
-      menu.hidden = false; menu.style.top = (r.bottom + W.scrollY + 4) + 'px'; menu.style.left = Math.max(8, r.right + W.scrollX - 240) + 'px';
-      $$('[data-mm]', menu).forEach(function (b) {
-        b.onclick = async function () {
-          menu.hidden = true;
-          if (b.dataset.mm === 'share') { try { await navigator.share({ files: files, title: items.length === 1 ? items[0].name : 'Bestanden uit MeBabs' }); } catch (e) { if (e.name !== 'AbortError') toast('Delen lukte niet: ' + (e.message || e), 'warn'); } return; }
-          try { var em = await buildEml(items); dl(em.blob, em.name); toast('Open het gedownloade bestand "' + em.name + '" (onderaan of in Downloads). Outlook opent dan een nieuwe mail met de bijlage, klaar om te versturen.', 'ok'); }
-          catch (e) { toast('Mail maken mislukt: ' + (e.message || e), 'err'); }
-        };
-      });
+      try { var em = await buildEml(items); dl(em.blob, em.name); toast('Open het gedownloade bestand "' + em.name + '" (onderaan of in Downloads). Outlook opent dan een nieuwe mail met ' + (items.length === 1 ? 'de bijlage' : 'de ' + items.length + ' bijlagen') + ', klaar om te versturen.', 'ok'); }
+      catch (e) { toast('Mail maken mislukt: ' + (e.message || e), 'err'); }
     }
   }
 
@@ -2658,7 +2665,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     h += '<section class="card today"><h2>Vandaag <span class="muted">' + esc(fmtLong(t)) + '</span></h2>';
     if (today.length) {
       h += '<ul class="tl">' + today.map(function (m) {
-        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span>' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</li>';
+        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span><span class="tact"><span class="tst">' + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</span><span class="tjn">' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + '</span></span></li>';
       }).join('') + '</ul>';
     } else h += '<p class="muted">Geen vergaderingen vandaag.' + (next ? ' De volgende is op <a href="#/v/' + esc(next.id) + '">' + esc(fmtLong(next.date)) + ': ' + esc(next.title) + '</a>.' : '') + '</p>';
     h += '</section>';
@@ -2846,8 +2853,17 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   function isNote(s) { return s.t === 'note' || s.t === 'text'; }
   function hasNotes(ann) { return Object.keys(ann || {}).some(function (k) { return (ann[k] || []).some(isNote); }); }
   async function draftPdf(f) { if (f._pdf === undefined) { var r = await convertToPdf(f.name, f.type, f.blob); f._pdf = r ? new Blob([r.bytes], { type: 'application/pdf' }) : null; } return f._pdf; }
+  function maxLabel() { return A.pvMax ? 'Verkleinen (Esc)' : 'Vergroten tot volledig venster'; }
+  function maxBtn() { return '<button type="button" class="tl mx' + (A.pvMax ? ' on' : '') + '" data-act="max" title="' + maxLabel() + '" aria-label="' + maxLabel() + '"><span class="mxi"></span></button>'; }
+  function pvMax(on) {
+    var el = $('#pv'); A.pvMax = !!on; if (!el) return;
+    el.classList.toggle('max', A.pvMax);
+    var b = $('[data-act=max]', el); if (b) { b.classList.toggle('on', A.pvMax); b.title = maxLabel(); b.setAttribute('aria-label', maxLabel()); }
+    requestAnimationFrame(function () { if (PV.fit && $('#pvp') && PV.pages) { layoutPages(); if (PV.q) doSearch(PV.q); } });
+  }
   async function pvShow(m, i) {
     var el = $('#pv'); if (!el) return;
+    el.classList.toggle('max', !!A.pvMax);
     var isNew = !!m.isNew, list = isNew ? (m.pending || []) : m.files, f = list[i];
     if (A.edCtl && A.edCtl.isDirty() && !confirm('Je hebt wijzigingen in het bestand die nog niet zijn opgeslagen. Weggooien?')) return;
     A.edCtl = null;
@@ -2864,7 +2880,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     var editMode = PV.mode === 'edit' && !isNew && canEdit(f);
     var tabs = !isNew && canEdit(f) ? '<div class="vtabs"><button type="button" data-mode="pdf" class="' + (editMode ? '' : 'on') + '">PDF</button><button type="button" data-mode="edit" class="' + (editMode ? 'on' : '') + '" title="Het originele bestand bewerken">Bewerken</button></div>' : '';
     if (editMode) {
-      setHTML(el, '<div class="pvbar"><div class="pvt">' + tabs + '<b class="pvname" title="' + esc(f.name) + '">' + (i + 1) + '. ' + esc(f.name) + '</b></div><div class="pvtools"><button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button><button type="button" class="tl" data-act="orig" title="Origineel downloaden">⤓</button></div></div><div class="edwrap" id="edw"></div>');
+      setHTML(el, '<div class="pvbar"><div class="pvt">' + tabs + '<b class="pvname" title="' + esc(f.name) + '">' + (i + 1) + '. ' + esc(f.name) + '</b></div><div class="pvtools"><button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button><button type="button" class="tl" data-act="orig" title="Origineel downloaden">⤓</button>' + maxBtn() + '</div></div><div class="edwrap" id="edw"></div>');
       $$('[data-mode]', el).forEach(function (b) { b.onclick = function () { switchMode(m, i, b.dataset.mode); }; });
       $$('[data-act]', el).forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); pvAct(b.dataset.act, m, i); }; });
       A.edCtl = await mountEditor(m, f, $('#edw'), function () { renderDocList(m); });
@@ -2877,7 +2893,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     hb += '<button type="button" class="tl" data-act="undo" title="Ongedaan maken (Ctrl+Z)"' + (editable ? '' : ' disabled') + '>↶</button><button type="button" class="tl" data-act="redo" title="Opnieuw (Ctrl+Y)"' + (editable ? '' : ' disabled') + '>↷</button><span class="sep"></span>';
     hb += '<button type="button" class="tl" data-act="zout" title="Kleiner">−</button><button type="button" class="tl zl" data-act="fit" id="pvz" title="Passend maken">100%</button><button type="button" class="tl" data-act="zin" title="Groter">+</button><span class="sep"></span>';
     hb += '<button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button>';
-    hb += '<button type="button" class="tl" data-act="more" title="Meer">⋯</button><div class="pvmenu" id="pvmenu" hidden>' +
+    hb += maxBtn() + '<button type="button" class="tl" data-act="more" title="Meer">⋯</button><div class="pvmenu" id="pvmenu" hidden>' +
       (editable ? '<button type="button" data-act="dlann">PDF met aantekeningen downloaden</button><button type="button" data-act="clear">Alle aantekeningen in dit stuk wissen</button>' : '') +
       '<button type="button" data-act="orig">Origineel downloaden</button><button type="button" data-act="tab">PDF openen in nieuw tabblad</button></div></div></div>';
     if (!editable) hb += '<div class="pvhint">Sla de vergadering eerst op. Daarna kun je markeren en opmerkingen maken.</div>';
@@ -2924,7 +2940,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   /* ---------- pagina's opbouwen: canvas + tekstlaag + aantekeningen + marge */
   function layoutPages() {
     var box = $('#pvp'); if (!box || !PV.pages) return;
-    var keep = box.scrollHeight ? box.scrollTop / box.scrollHeight : 0, tok = PV.tok;
+    var keep = box.scrollHeight ? box.scrollTop / box.scrollHeight : 0, keepX = box.scrollWidth > box.clientWidth ? (box.scrollLeft + box.clientWidth / 2) / box.scrollWidth : -1, tok = PV.tok;
     while (box.firstChild) box.removeChild(box.firstChild);
     if (PV.io) PV.io.disconnect();
     box.dataset.t = PV.tool;
@@ -2951,6 +2967,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       if (PV.editable) bindPage(p);
     });
     box.scrollTop = keep * box.scrollHeight;
+    box.scrollLeft = keepX < 0 ? (box.scrollWidth - box.clientWidth) / 2 : keepX * box.scrollWidth - box.clientWidth / 2;
     PV.pages.forEach(function (p) { drawAnn(p); });
     (async function () { for (var k = 0; k < PV.pages.length; k++) { if (tok !== PV.tok || !PV.pages) return; await ensureText(PV.pages[k]); } })();
   }
@@ -3183,6 +3200,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     var list = m.isNew ? m.pending : m.files, f = list[i], menu = $('#pvmenu');
     if (a === 'more') { if (menu) menu.hidden = !menu.hidden; return; }
     if (menu) menu.hidden = true;
+    if (a === 'max') return pvMax(!A.pvMax);
     if (a === 'prev' && i > 0) return pvShow(m, i - 1);
     if (a === 'next' && i < list.length - 1) return pvShow(m, i + 1);
     if (a === 'qnext' || a === 'qprev') { var qi = $('#pvq'); if (qi && qi.value !== PV.q) return doSearch(qi.value); return gotoHit(PV.hi + (a === 'qnext' ? 1 : -1)); }
@@ -3197,6 +3215,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
   }
   function initPv() {
     D.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && A.pvMax && $('#pv') && !e.defaultPrevented && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '') && !e.target.isContentEditable) { e.preventDefault(); pvMax(false); return; }
       if (!$('#pv') || !PV.pages) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { var qi = $('#pvq'); if (qi) { e.preventDefault(); qi.focus(); qi.select(); } return; }
       if (!PV.editable || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || '')) || e.target.isContentEditable) return;

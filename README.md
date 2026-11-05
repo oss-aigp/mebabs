@@ -42,7 +42,7 @@ Alles blijft op je eigen computer. Er is geen server, geen installatie en geen i
 | **Aantekeningen** | Een kolom om aantekeningen te maken tijdens de vergadering. Een regel die begint met `!` wordt een actie. Alles wordt opgeslagen als `jjjjmmdd Titel.txt`. |
 | **Verslagen** | Alle aantekeningen op een rij, te sorteren op naam, datum en datum gewijzigd. Klik op een verslag om het te bewerken in een Word-achtige editor (koppen, vet, cursief, onderstreept, lijsten). Wijzigingen worden automatisch bewaard. |
 | **Actielijst** | Alle acties met de vergaderdatum. Je kunt acties bewerken, afvinken en van de lijst halen (de regel blijft in de aantekeningen staan). Je kunt een begindatum opgeven en **snoozen** naar morgen, overmorgen, volgende week of een datum die je kiest. |
-| **Bestanden** | Een verkenner met alle bestanden: zoeken, filteren per kolom, openen, downloaden, **mailen** (als conceptmail met bijlage) en naar de vergadering springen. Bestanden kun je hier alleen bekijken, niet bewerken. | Hetzelfde bestand in een ander formaat of een vorige versie (PDF-versie, *(oorspronkelijk)*) staat op één regel; klik met de **rechtermuisknop** (of op *versies*) om alle versies te zien, elk met een eigen download- en mailknop. Aantekeningen, de actielijst en originele mails staan niet in dit overzicht: die vind je in de tabbladen Verslagen en Actielijst en in de vergadering zelf.
+| **Bestanden** | Een verkenner met alle bestanden: zoeken, filteren per kolom, openen, downloaden, **mailen** (als conceptmail met bijlage) en naar de vergadering springen. Met **Verwijderen** haal je een bestand uit het overzicht zonder het uit de vergadering te halen. Bestanden kun je hier alleen bekijken, niet bewerken. | Hetzelfde bestand in een ander formaat of een vorige versie (PDF-versie, *(oorspronkelijk)*) staat op één regel; klik met de **rechtermuisknop** (of op *versies*) om alle versies te zien, elk met een eigen download- en mailknop. Aantekeningen, de actielijst en originele mails staan niet in dit overzicht: die vind je in de tabbladen Verslagen en Actielijst en in de vergadering zelf.
 
 <p align="center"><img src="docs/viewer.png" width="760" alt="Viewer met markeringen en opmerkingen in de marge"></p>
 
@@ -142,6 +142,8 @@ Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adres
 | **Gum** | Klik op een markering of opmerking om die te verwijderen. |
 | ↶ ↷ | Ongedaan maken en opnieuw, tot 20 stappen (Ctrl+Z en Ctrl+Y). |
 | Zoekvak | Zoeken in de PDF (Ctrl+F), daarna Enter voor de volgende treffer. |
+| − 100% + | Kleiner en groter. Ingezoomd kun je met de horizontale schuifbalk de hele pagina zien. Klik op het percentage om de pagina weer passend te maken. |
+| ⛶ | De viewer tijdelijk vergroten tot het hele browservenster. Nog een keer klikken of Esc maakt hem weer klein. Werkt ook bij Bewerken. |
 | ⋯ | Het stuk downloaden met je aantekeningen, of het origineel downloaden. |
 
 **Bewerken** (tabblad boven de viewer)
@@ -160,6 +162,7 @@ Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adres
 **Bestanden**
 - Hier zie je alle bestanden uit de datamap. Je kunt ze openen, downloaden, ✉ mailen en met **Vergadering ›** naar de bijbehorende vergadering gaan.
 - Mailen maakt een conceptmail (`.eml`) met de bijlagen. Open het gedownloade bestand en Outlook start een nieuwe mail die klaar is om te versturen.
+- **🗑 Verwijderen** haalt een bestand alleen uit dit overzicht. In de vergadering en in de datamap blijft het gewoon staan. Met **Verwijderd tonen** zie je wat je hebt weggehaald, en met **↩ Terugzetten** komt het terug in het overzicht.
 
 <p align="center"><img src="docs/bestanden.png" width="760" alt="Tabblad Bestanden"></p>
 
@@ -208,7 +211,7 @@ Je gegevens staan in de datamap, niet in het HTML-bestand. Vervangen is dus veil
 | **De opmaak van een omgezet stuk wijkt af** | Het omzetten gebeurt zonder Word, dus de tekst klopt maar de opmaak is vereenvoudigd. Gebruik voor de exacte opmaak de PDF-route hierboven. |
 | **Een gescande PDF: zoeken en markeren werkt niet** | Een scan is een afbeelding zonder tekst. Opmerkingen werken wel. |
 | **De viewer blijft leeg** | Kies in ⋯ voor **PDF openen in nieuw tabblad**. |
-| **De conceptmail opent als gewone mail** | Dat gebeurt in de nieuwe Outlook. Gebruik daar **Windows Delen**, of sleep de gedownloade bestanden in een nieuwe mail. |
+| **De conceptmail opent als gewone mail** | Dat gebeurt in de nieuwe Outlook. Download de bestanden dan met ⤓ en sleep ze in een nieuwe mail. |
 | **Ik zie mijn vergaderingen niet meer** | Kies bovenin via **wijzig** de juiste datamap. Kijk ook in het **Archief** onderaan de beginpagina. |
 
 ---

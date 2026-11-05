@@ -302,7 +302,7 @@
     h += '<section class="card today"><h2>Vandaag <span class="muted">' + esc(fmtLong(t)) + '</span></h2>';
     if (today.length) {
       h += '<ul class="tl">' + today.map(function (m) {
-        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span>' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</li>';
+        return '<li data-id="' + esc(m.id) + '"><span class="tm">' + esc(m.start || '—') + (m.end ? '<small>' + esc(m.end) + '</small>' : '') + '</span><span class="tt"><b>' + esc(m.title) + '</b><small>' + esc(m.location || '') + '</small></span><span class="tact"><span class="tst">' + (m.files.length ? '<span class="pill">' + m.files.length + ' stuk' + (m.files.length > 1 ? 'ken' : '') + '</span>' : '') + '</span><span class="tjn">' + (m.link ? '<a class="btn sm join" href="' + esc(m.link) + '" target="_blank" rel="noopener" title="Deelnemen aan de online vergadering">Deelnemen</a>' : '') + '</span></span></li>';
       }).join('') + '</ul>';
     } else h += '<p class="muted">Geen vergaderingen vandaag.' + (next ? ' De volgende is op <a href="#/v/' + esc(next.id) + '">' + esc(fmtLong(next.date)) + ': ' + esc(next.title) + '</a>.' : '') + '</p>';
     h += '</section>';
@@ -490,8 +490,17 @@
   function isNote(s) { return s.t === 'note' || s.t === 'text'; }
   function hasNotes(ann) { return Object.keys(ann || {}).some(function (k) { return (ann[k] || []).some(isNote); }); }
   async function draftPdf(f) { if (f._pdf === undefined) { var r = await convertToPdf(f.name, f.type, f.blob); f._pdf = r ? new Blob([r.bytes], { type: 'application/pdf' }) : null; } return f._pdf; }
+  function maxLabel() { return A.pvMax ? 'Verkleinen (Esc)' : 'Vergroten tot volledig venster'; }
+  function maxBtn() { return '<button type="button" class="tl mx' + (A.pvMax ? ' on' : '') + '" data-act="max" title="' + maxLabel() + '" aria-label="' + maxLabel() + '"><span class="mxi"></span></button>'; }
+  function pvMax(on) {
+    var el = $('#pv'); A.pvMax = !!on; if (!el) return;
+    el.classList.toggle('max', A.pvMax);
+    var b = $('[data-act=max]', el); if (b) { b.classList.toggle('on', A.pvMax); b.title = maxLabel(); b.setAttribute('aria-label', maxLabel()); }
+    requestAnimationFrame(function () { if (PV.fit && $('#pvp') && PV.pages) { layoutPages(); if (PV.q) doSearch(PV.q); } });
+  }
   async function pvShow(m, i) {
     var el = $('#pv'); if (!el) return;
+    el.classList.toggle('max', !!A.pvMax);
     var isNew = !!m.isNew, list = isNew ? (m.pending || []) : m.files, f = list[i];
     if (A.edCtl && A.edCtl.isDirty() && !confirm('Je hebt wijzigingen in het bestand die nog niet zijn opgeslagen. Weggooien?')) return;
     A.edCtl = null;
@@ -508,7 +517,7 @@
     var editMode = PV.mode === 'edit' && !isNew && canEdit(f);
     var tabs = !isNew && canEdit(f) ? '<div class="vtabs"><button type="button" data-mode="pdf" class="' + (editMode ? '' : 'on') + '">PDF</button><button type="button" data-mode="edit" class="' + (editMode ? 'on' : '') + '" title="Het originele bestand bewerken">Bewerken</button></div>' : '';
     if (editMode) {
-      setHTML(el, '<div class="pvbar"><div class="pvt">' + tabs + '<b class="pvname" title="' + esc(f.name) + '">' + (i + 1) + '. ' + esc(f.name) + '</b></div><div class="pvtools"><button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button><button type="button" class="tl" data-act="orig" title="Origineel downloaden">⤓</button></div></div><div class="edwrap" id="edw"></div>');
+      setHTML(el, '<div class="pvbar"><div class="pvt">' + tabs + '<b class="pvname" title="' + esc(f.name) + '">' + (i + 1) + '. ' + esc(f.name) + '</b></div><div class="pvtools"><button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button><button type="button" class="tl" data-act="orig" title="Origineel downloaden">⤓</button>' + maxBtn() + '</div></div><div class="edwrap" id="edw"></div>');
       $$('[data-mode]', el).forEach(function (b) { b.onclick = function () { switchMode(m, i, b.dataset.mode); }; });
       $$('[data-act]', el).forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); pvAct(b.dataset.act, m, i); }; });
       A.edCtl = await mountEditor(m, f, $('#edw'), function () { renderDocList(m); });
@@ -521,7 +530,7 @@
     hb += '<button type="button" class="tl" data-act="undo" title="Ongedaan maken (Ctrl+Z)"' + (editable ? '' : ' disabled') + '>↶</button><button type="button" class="tl" data-act="redo" title="Opnieuw (Ctrl+Y)"' + (editable ? '' : ' disabled') + '>↷</button><span class="sep"></span>';
     hb += '<button type="button" class="tl" data-act="zout" title="Kleiner">−</button><button type="button" class="tl zl" data-act="fit" id="pvz" title="Passend maken">100%</button><button type="button" class="tl" data-act="zin" title="Groter">+</button><span class="sep"></span>';
     hb += '<button type="button" class="tl" data-act="prev" title="Vorig stuk"' + (i ? '' : ' disabled') + '>‹</button><button type="button" class="tl" data-act="next" title="Volgend stuk"' + (i < list.length - 1 ? '' : ' disabled') + '>›</button>';
-    hb += '<button type="button" class="tl" data-act="more" title="Meer">⋯</button><div class="pvmenu" id="pvmenu" hidden>' +
+    hb += maxBtn() + '<button type="button" class="tl" data-act="more" title="Meer">⋯</button><div class="pvmenu" id="pvmenu" hidden>' +
       (editable ? '<button type="button" data-act="dlann">PDF met aantekeningen downloaden</button><button type="button" data-act="clear">Alle aantekeningen in dit stuk wissen</button>' : '') +
       '<button type="button" data-act="orig">Origineel downloaden</button><button type="button" data-act="tab">PDF openen in nieuw tabblad</button></div></div></div>';
     if (!editable) hb += '<div class="pvhint">Sla de vergadering eerst op. Daarna kun je markeren en opmerkingen maken.</div>';
@@ -568,7 +577,7 @@
   /* ---------- pagina's opbouwen: canvas + tekstlaag + aantekeningen + marge */
   function layoutPages() {
     var box = $('#pvp'); if (!box || !PV.pages) return;
-    var keep = box.scrollHeight ? box.scrollTop / box.scrollHeight : 0, tok = PV.tok;
+    var keep = box.scrollHeight ? box.scrollTop / box.scrollHeight : 0, keepX = box.scrollWidth > box.clientWidth ? (box.scrollLeft + box.clientWidth / 2) / box.scrollWidth : -1, tok = PV.tok;
     while (box.firstChild) box.removeChild(box.firstChild);
     if (PV.io) PV.io.disconnect();
     box.dataset.t = PV.tool;
@@ -595,6 +604,7 @@
       if (PV.editable) bindPage(p);
     });
     box.scrollTop = keep * box.scrollHeight;
+    box.scrollLeft = keepX < 0 ? (box.scrollWidth - box.clientWidth) / 2 : keepX * box.scrollWidth - box.clientWidth / 2;
     PV.pages.forEach(function (p) { drawAnn(p); });
     (async function () { for (var k = 0; k < PV.pages.length; k++) { if (tok !== PV.tok || !PV.pages) return; await ensureText(PV.pages[k]); } })();
   }
@@ -827,6 +837,7 @@
     var list = m.isNew ? m.pending : m.files, f = list[i], menu = $('#pvmenu');
     if (a === 'more') { if (menu) menu.hidden = !menu.hidden; return; }
     if (menu) menu.hidden = true;
+    if (a === 'max') return pvMax(!A.pvMax);
     if (a === 'prev' && i > 0) return pvShow(m, i - 1);
     if (a === 'next' && i < list.length - 1) return pvShow(m, i + 1);
     if (a === 'qnext' || a === 'qprev') { var qi = $('#pvq'); if (qi && qi.value !== PV.q) return doSearch(qi.value); return gotoHit(PV.hi + (a === 'qnext' ? 1 : -1)); }
@@ -841,6 +852,7 @@
   }
   function initPv() {
     D.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && A.pvMax && $('#pv') && !e.defaultPrevented && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '') && !e.target.isContentEditable) { e.preventDefault(); pvMax(false); return; }
       if (!$('#pv') || !PV.pages) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { var qi = $('#pvq'); if (qi) { e.preventDefault(); qi.focus(); qi.select(); } return; }
       if (!PV.editable || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || '')) || e.target.isContentEditable) return;
