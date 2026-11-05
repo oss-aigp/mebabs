@@ -1,6 +1,6 @@
 {
   "name": "mebabs",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "MeBabs: een lokale vergaderapp in één HTML-bestand. Sleep Outlook-mails erin en je krijgt vergaderingen met stukken, PDF-viewer met aantekeningen, notulen en een actielijst.",
   "private": true,
   "scripts": {

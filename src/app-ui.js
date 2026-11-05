@@ -475,7 +475,7 @@
     var nOpen = A.store ? openCount() : 0;
     h += '<nav class="topnav"><a href="#/" class="' + (/^#\/(v\/|nieuw)?$/.test(hs) || hs === '#/' ? 'on' : '') + '">Vergaderingen</a><a href="#/verslagen" class="' + (/^#\/verslag/.test(hs) ? 'on' : '') + '">Verslagen</a><a href="#/acties" class="' + (hs === '#/acties' ? 'on' : '') + '">Actielijst' + (nOpen ? ' <span class="cnt">' + nOpen + '</span>' : '') + '</a><a href="#/bestanden" class="' + (hs === '#/bestanden' ? 'on' : '') + '">Bestanden</a></nav><span class="sp"></span>';
     if (A.store) {
-      h += '<span class="tinfo" title="Hier worden alle vergaderingen, stukken en aantekeningen bewaard">📁 ' + (A.store.kind === 'map' ? 'Map: <b>' + esc(A.store.name) + '</b>' : 'In de browser') + ' <button class="link" id="chgStore">' + (A.store.kind === 'map' ? 'wijzig' : 'map kiezen') + '</button> <a class="link" href="#/installatie" title="Installatie en snelkoppeling">?</a></span>';
+      h += '<span class="tinfo" title="Hier worden alle vergaderingen, stukken en aantekeningen bewaard">📁 ' + (A.store.kind === 'map' ? 'Map: <b>' + esc(A.store.name) + '</b>' : 'In de browser') + ' <button class="link" id="chgStore">' + (A.store.kind === 'map' ? 'wijzig' : 'map kiezen') + '</button></span>';
     }
     setHTML(s, h);
     var cs = $('#chgStore', s); if (cs) cs.onclick = chooseFolder;
@@ -489,6 +489,7 @@
       '<li><b>Kies de datamap</b>: klik hieronder en kies de map <b>MeBabs</b> waar dit bestand in staat. MeBabs maakt daarin de map <b>mebabs-data</b> aan en zet er het icoon naast.</li>' +
       '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk. Dat wijst MeBabs je na het kiezen van de map.</li></ol>' +
       (fsOk ? '<p><button class="btn pri" id="pickDir">📁 Datamap kiezen…</button> <a class="btn" href="#/installatie">Uitgebreide uitleg</a></p>' : '<p class="note">Deze browser kan geen map op je computer gebruiken. Open MeBabs in Microsoft Edge of Google Chrome.</p>') +
+      '<p class="note"><b>Back-up:</b> kopieer af en toe de hele map <b>mebabs-data</b>, mét het bestand <b>mebabs.json</b> erin, naar bijvoorbeeld OneDrive of een netwerkschijf. Terugzetten doe je door die map weer als datamap te kiezen. Meer uitleg vind je onder de knop <b>?</b> rechtsboven.</p>' +
       '<p class="note">Mag je geen map kiezen? <button class="link" id="useIdb">Bewaar alles in de browser</button> (alleen op deze computer, zonder bestanden).</p>' +
       (A.hadDir ? '<button class="btn" id="recon">Verder met de vorige map</button>' : '') + '</div>');
     var p = $('#pickDir'); if (p) p.onclick = chooseFolder;
@@ -557,6 +558,7 @@
       '<p><button class="btn pri" id="insLnk"' + (here ? '' : ' disabled') + '>⤓ Snelkoppeling downloaden</button> <button class="btn" id="insIco">⤓ Icoon downloaden</button></p>' +
       '<p class="muted">Het icoon staat in de snelkoppeling als <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code>. ' + (A.iconPlaced ? 'Dat bestand heeft MeBabs al neergezet. ' : 'Dat bestand zet MeBabs neer als je in stap 2 de map MeBabs kiest; anders download je het hier en zet je het naast MeBabs.html. ') + 'Ziet de snelkoppeling er niet goed uit, kies dan in de eigenschappen <b>Ander pictogram…</b> en blader naar <code>MeBabs.ico</code>.</p>' +
       (here ? '<details><summary>Liever zelf een snelkoppeling maken?</summary><ol><li>Klik met de rechtermuisknop op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li><li>Plak bij <i>Typ de locatie van het item</i>:</li></ol><div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3"><li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li><li>Klik met de rechtermuisknop op de snelkoppeling › <b>Eigenschappen</b> › <b>Ander pictogram…</b> en kies <code>MeBabs.ico</code>.</li></ol></details>' : '') + '</section>';
+    h += '<section class="card wk"><h2>4. Back-up</h2>' + BACKUP_HTML.replace(/<h3>/g, '<h3 class="sub">') + '</section>';
     h += '<p><a class="btn" href="#/">Klaar, naar de vergaderingen</a></p>';
     setHTML($('#main'), h);
     $('#insPick').onclick = chooseFolder;
@@ -1272,6 +1274,7 @@
   W.addEventListener('hashchange', function () { if (A.flushNotes) { try { A.flushNotes(); } catch (e) {} A.flushNotes = null; } });
   W.addEventListener('beforeunload', function (e) { if (A.flushNotes) A.flushNotes(); if (A.edCtl && A.edCtl.isDirty()) { e.preventDefault(); e.returnValue = ''; } });
   async function start() {
+    initHelp();
     initDrop(); initPv();
     W.addEventListener('hashchange', route);
     var mode = await kvGet('mode').catch(function () { return null; });

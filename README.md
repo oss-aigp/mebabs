@@ -106,7 +106,7 @@ Kies je een map waarin al gegevens van MeBabs staan (bijvoorbeeld je oude datama
 
 ### Stap 5. Snelkoppeling op het bureaublad en in de taakbalk
 
-Na het kiezen van de datamap opent MeBabs de pagina **MeBabs installeren** (later terug te vinden via **?** rechtsboven).
+Na het kiezen van de datamap opent MeBabs de pagina **MeBabs installeren** (later terug te vinden via de helpknop **?** rechtsboven, onderwerp *Installatie en back-up*).
 
 1. Klik op **⤓ Snelkoppeling downloaden**. Vraagt Edge of je het bestand wilt bewaren, kies dan **Behouden**.
 2. Open de map **Downloads** en sleep **MeBabs** naar het bureaublad.
@@ -127,6 +127,8 @@ Liever zelf maken? Klik met de rechtermuisknop op het bureaublad › **Nieuw** �
 ---
 
 ## Dagelijks gebruik
+
+> Op elke pagina staat rechtsboven een knop **?** (of druk op **F1**). Die opent uitgebreide uitleg over de pagina waar je bent.
 
 **Een vergadering aanmaken**
 - Sleep een mail of uitnodiging uit Outlook naar het MeBabs-venster. Controleer de gegevens en klik op **Opslaan**.
@@ -221,8 +223,9 @@ Je gegevens staan in de datamap, niet in het HTML-bestand. Vervangen is dus veil
 
 ## Back-up en verhuizen
 
-- **Back-up:** kopieer de hele map `MeBabs`, bijvoorbeeld naar OneDrive of een netwerkschijf.
-- **Naar een andere computer:** kopieer de map, open `MeBabs.html` en kies via **wijzig** bovenin de gekopieerde map.
+- **Back-up:** sluit MeBabs en kopieer de **hele map `mebabs-data`**, mét het bestand `mebabs.json` erin, bijvoorbeeld naar OneDrive, een netwerkschijf of een USB-stick. `mebabs.json` is het register: daarin staan de vergaderingen, aantekeningen, acties en je markeringen en opmerkingen. Zonder dat bestand zijn alleen de losse stukken terug te halen.
+- **Terugzetten of naar een andere computer:** zet de gekopieerde map `mebabs-data` neer (bijvoorbeeld in `Documenten\MeBabs`), open `MeBabs.html` en kies via **wijzig** rechtsboven die map.
+- Losse vergadermappen terugkopiëren in `Vergaderingen` werkt niet: MeBabs werkt vanuit `mebabs.json`. Zet altijd de hele map terug.
 
 ---
 
@@ -287,6 +290,7 @@ mebabs/
 │  ├─ notes.js           ← aantekeningen tijdens de vergadering en de actielijst (snooze, begindatum)
 │  ├─ reports.js         ← tabblad Verslagen (lijst en Word-achtige editor)
 │  ├─ files.js           ← tabblad Bestanden (alleen lezen, zoeken, filteren, mailen)
+│  ├─ help.js            ← helppaneel per pagina (knop ? en F1)
 │  ├─ app-ui.js          ← opslag (map / IndexedDB), routes, overzicht, vergaderpagina,
 │  │                       PDF-viewer met markeren/opmerkingen/zoeken
 │  └─ icon.svg           ← app-icoon (optie 2, Tafel)

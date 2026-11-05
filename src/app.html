@@ -318,8 +318,23 @@ tbody tr:hover .pill,.tl li:hover .pill{background:#fff}
 .tomorrow{border-top-color:#8FCAE7}.tomorrow .tm{color:var(--brand2)}.tomorrow p.muted{min-height:0;padding-left:0;background:none}
 .today.arch{padding:0;border-top:4px solid var(--hemel)}.daybtn{font-size:19px;font-weight:700}.daybtn .muted{font-size:14px;font-weight:400}.today.arch>.tl,.today.arch>p{margin:0;padding:0 22px 16px 31px}.today.arch>p.muted{margin:0 22px 16px;padding-left:66px}
 .steps{padding-left:22px;line-height:1.6}.steps li{margin-bottom:6px}.okline{color:var(--green);font-weight:600}.warnline{background:var(--warn);padding:8px 12px;border-radius:6px}.tree{background:var(--row);border:1px solid var(--line);border-radius:6px;padding:10px 14px;font:13px/1.5 Consolas,monospace;max-width:420px}.cmdbox{display:flex;gap:8px;align-items:center;background:var(--row);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:0 0 10px 22px}.cmdbox code{flex:1;word-break:break-all;font-size:13px}
+.helpbtn{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.75);background:rgba(255,255,255,.12);color:#fff;font:700 17px/1 var(--font);cursor:pointer;margin-left:6px}
+.helpbtn:hover{background:#fff;color:#154273}
+.helpbg{position:fixed;inset:0;background:rgba(15,23,34,.35);z-index:80;opacity:0;transition:opacity .2s}.helpbg.on{opacity:1}
+.helppanel{padding:0;border:0;position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--card);color:var(--ink);z-index:81;box-shadow:-12px 0 40px rgba(0,0,0,.25);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s ease}
+.helppanel.on{transform:none}
+.helphead{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(90deg,#123a66,#154273 60%,#1a5189);color:#fff;border-bottom:3px solid var(--hemel)}
+.helphead h2{flex:1;margin:0;color:#fff;font-size:18px}
+.helpq{width:30px;height:30px;border-radius:50%;background:#fff;color:#154273;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex:none}
+.helpx{border:0;background:rgba(255,255,255,.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px}.helpx:hover{background:rgba(255,255,255,.28)}
+.helpbody{flex:1;overflow:auto;padding:16px 22px 26px;line-height:1.6}
+.helpbody h3{font-size:15px;color:var(--brand);margin:18px 0 6px}.helpbody h3:first-child{margin-top:4px}
+.helpbody ul,.helpbody ol{padding-left:20px;margin:0 0 8px}.helpbody li{margin-bottom:5px}.helpbody p{margin:0 0 10px}
+.helpbody code{background:var(--row);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12.5px}
+.helpbody hr{border:0;border-top:1px solid var(--line);margin:18px 0 10px}.helpbody .link{padding:2px 4px}
+@media (prefers-reduced-motion:reduce){.helppanel,.helpbg{transition:none}}
 </style></head><body>
-<header><a class="logo" href="#/"><img src="__ICON_URI__" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div></header>
+<header><a class="logo" href="#/"><img src="__ICON_URI__" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div><button type="button" class="helpbtn" id="helpBtn" title="Help bij deze pagina (F1)" aria-label="Help bij deze pagina">?</button></header>
 <div class="wrap"><main id="main"></main></div>
 <div id="overlay"><div id="ovText">Laat los om een vergadering aan te maken</div></div>
 <div id="toast"></div>
