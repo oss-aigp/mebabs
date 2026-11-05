@@ -94,11 +94,16 @@
       var h = await W.showDirectoryPicker({ id: 'vergaderapp', mode: 'readwrite', startIn: 'documents' });
       var hasIndex = false, n = 0;
       for await (var e of h.values()) { n++; if (e.name === 'vergaderingen.json' || e.name === 'mebabs.json') hasIndex = true; }
-      if (!hasIndex && n > 0 && !/vergader|miebabs|mebabs/i.test(h.name)) h = await h.getDirectoryHandle('MeBabs', { create: true });
+      /* Bevat de gekozen map al gegevens van MeBabs, dan gebruiken we die. Anders maakt MeBabs er de map mebabs-data in. */
+      var appDir = null;
+      if (!hasIndex && h.name.toLowerCase() !== 'mebabs-data') { appDir = h; h = await h.getDirectoryHandle('mebabs-data', { create: true }); }
       if ((await h.requestPermission({ mode: 'readwrite' })) !== 'granted') throw new Error('Geen schrijfrechten op de map');
+      var first = !(await h.getFileHandle('mebabs.json').then(function () { return true; }, function () { return false; }));
       await kvSet('dir', h);
+      if (appDir) { try { await putIconNextToApp(appDir); } catch (e2) { console.warn(e2); } }
       await useStore(new FolderStore(h));
       toast('Gegevens worden bewaard in de map "' + h.name + '".', 'ok');
+      if (first) location.hash = '#/installatie';
     } catch (e) {
       if (e && e.name === 'AbortError') return;
       toast('Map kiezen lukt niet (' + (e.message || e.name) + '). Kies "In de browser bewaren".', 'err');
@@ -447,6 +452,7 @@
   function route() {
     var h = location.hash || '#/'; $('#main').classList.remove('detail');
     renderSide();
+    if (h === '#/installatie') return renderInstall();
     if (!A.store) return renderWelcome();
     if (h === '#/nieuw') { if (!A.draft) A.draft = blankDraft(); return renderDetail(A.draft); }
     var mm = /^#\/v\/(.+)$/.exec(h);
@@ -469,23 +475,98 @@
     var nOpen = A.store ? openCount() : 0;
     h += '<nav class="topnav"><a href="#/" class="' + (/^#\/(v\/|nieuw)?$/.test(hs) || hs === '#/' ? 'on' : '') + '">Vergaderingen</a><a href="#/verslagen" class="' + (/^#\/verslag/.test(hs) ? 'on' : '') + '">Verslagen</a><a href="#/acties" class="' + (hs === '#/acties' ? 'on' : '') + '">Actielijst' + (nOpen ? ' <span class="cnt">' + nOpen + '</span>' : '') + '</a><a href="#/bestanden" class="' + (hs === '#/bestanden' ? 'on' : '') + '">Bestanden</a></nav><span class="sp"></span>';
     if (A.store) {
-      h += '<span class="tinfo" title="Hier worden alle vergaderingen, stukken en aantekeningen bewaard">📁 ' + (A.store.kind === 'map' ? 'Map: <b>' + esc(A.store.name) + '</b>' : 'In de browser') + ' <button class="link" id="chgStore">' + (A.store.kind === 'map' ? 'wijzig' : 'map kiezen') + '</button></span>';
+      h += '<span class="tinfo" title="Hier worden alle vergaderingen, stukken en aantekeningen bewaard">📁 ' + (A.store.kind === 'map' ? 'Map: <b>' + esc(A.store.name) + '</b>' : 'In de browser') + ' <button class="link" id="chgStore">' + (A.store.kind === 'map' ? 'wijzig' : 'map kiezen') + '</button> <a class="link" href="#/installatie" title="Installatie en snelkoppeling">?</a></span>';
     }
     setHTML(s, h);
     var cs = $('#chgStore', s); if (cs) cs.onclick = chooseFolder;
     bindFolders(s);
   }
   function renderWelcome() {
-    var fsOk = !!W.showDirectoryPicker, inDocs = /\/MeBabs\/[^\/]*\.html$/i.test(decodeURIComponent(location.pathname));
+    var fsOk = !!W.showDirectoryPicker, here = htmlPathWin();
     setHTML($('#main'), '<div class="card welcome"><h1>Welkom bij MeBabs</h1>' +
       '<p>Sleep mails en uitnodigingen uit Outlook naar MeBabs. Er wordt dan automatisch een vergadering aangemaakt, met de titel, datum, tijd, locatie en alle stukken.</p>' +
-      (fsOk ? '<p><b>Eenmalig: kies je datamap.</b> Klik op de knop en kies een map, bijvoorbeeld <b>Documenten</b>; MeBabs maakt daarin de map <b>MeBabs</b> aan' + (inDocs ? ' (of kies de map MeBabs waar dit bestand in staat)' : '') + '. Daarin komen de submappen <b>Vergaderingen</b>, <b>Aantekeningen</b> en <b>Actielijst</b>. Edge vraagt daarna of MeBabs mag opslaan: kies <b>Wijzigingen opslaan</b>.</p>' +
-        '<button class="btn pri" id="pickDir">📁 Datamap kiezen…</button><br><br>' : '<p class="note">Deze browser kan geen map op je computer gebruiken.</p>') +
-      '<p class="note">Liever ergens anders? Kies in het venster gewoon een andere map. Of <button class="link" id="useIdb">bewaar alles in de browser</button> (alleen op deze computer, zonder bestanden).</p>' +
+      '<ol class="steps"><li><b>Geef MeBabs een vaste plek</b>: zet <code>MeBabs.html</code> in <b>Documenten\\MeBabs</b>' + (here ? ' <span class="muted">(nu: ' + esc(here) + ')</span>' : '') + '.</li>' +
+      '<li><b>Kies de datamap</b>: klik hieronder en kies de map <b>MeBabs</b> waar dit bestand in staat. MeBabs maakt daarin de map <b>mebabs-data</b> aan en zet er het icoon naast.</li>' +
+      '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk. Dat wijst MeBabs je na het kiezen van de map.</li></ol>' +
+      (fsOk ? '<p><button class="btn pri" id="pickDir">📁 Datamap kiezen…</button> <a class="btn" href="#/installatie">Uitgebreide uitleg</a></p>' : '<p class="note">Deze browser kan geen map op je computer gebruiken. Open MeBabs in Microsoft Edge of Google Chrome.</p>') +
+      '<p class="note">Mag je geen map kiezen? <button class="link" id="useIdb">Bewaar alles in de browser</button> (alleen op deze computer, zonder bestanden).</p>' +
       (A.hadDir ? '<button class="btn" id="recon">Verder met de vorige map</button>' : '') + '</div>');
     var p = $('#pickDir'); if (p) p.onclick = chooseFolder;
     $('#useIdb').onclick = function () { useStore(new BrowserStore()); };
     var r = $('#recon'); if (r) r.onclick = reconnect;
+  }
+  /* ------------------------------------------------------------- installatie: datamap, snelkoppeling via explorer.exe, icoon */
+  var MEBABS_ICO = __MEBABS_ICO__; /* icons/2-tafel.ico, door het buildscript ingevoegd */
+  function htmlPathWin() {
+    if (location.protocol !== 'file:') return null;
+    var p = decodeURIComponent(location.pathname);
+    if (location.host) return '\\\\' + location.host + p.replace(/\//g, '\\');
+    p = p.replace(/^\/([A-Za-z]:)/, '$1');
+    return /^[A-Za-z]:/.test(p) ? p.replace(/\//g, '\\') : null;
+  }
+  function htmlDirWin() { var p = htmlPathWin(); return p ? p.replace(/\\[^\\]*$/, '') : null; }
+  function icoBlob() { return new Blob([b64(MEBABS_ICO)], { type: 'image/x-icon' }); }
+  async function putIconNextToApp(dir) {
+    var name = (decodeURIComponent(location.pathname).split('/').pop() || '');
+    var hasApp = name && await dir.getFileHandle(name).then(function () { return true; }, function () { return false; });
+    if (!hasApp) return false; /* alleen naast MeBabs.html */
+    var exists = await dir.getFileHandle('MeBabs.ico').then(function () { return true; }, function () { return false; });
+    if (!exists) { var fh = await dir.getFileHandle('MeBabs.ico', { create: true }), w = await fh.createWritable(); await w.write(icoBlob()); await w.close(); }
+    A.iconPlaced = true; return true;
+  }
+  /* Windows-snelkoppeling (MS-SHLLINK): doel explorer.exe met het pad van MeBabs.html als argument. Zo kan hij ook aan de taakbalk. */
+  function makeLnk(args, workDir, icon, desc) {
+    var o = [];
+    function b(a) { for (var i = 0; i < a.length; i++) o.push(a[i] & 255); }
+    function u16(v) { o.push(v & 255, (v >> 8) & 255); }
+    function u32(v) { o.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); }
+    function ansi(t, len) { var a = []; for (var i = 0; i < t.length; i++) a.push(t.charCodeAt(i) < 256 ? t.charCodeAt(i) : 63); a.push(0); while (len && a.length < len) a.push(0); return a; }
+    function uni(t, len) { var a = []; for (var i = 0; i < t.length; i++) { var c = t.charCodeAt(i); a.push(c & 255, c >> 8); } a.push(0, 0); while (a.length < len) a.push(0); return a; }
+    function str(t) { u16(t.length); for (var i = 0; i < t.length; i++) u16(t.charCodeAt(i)); }
+    var target = 'C:\\Windows\\explorer.exe', expTarget = '%windir%\\explorer.exe';
+    /* ShellLinkHeader */
+    u32(0x4C); b([0x01, 0x14, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46]);
+    u32(0x02 | 0x04 | 0x10 | 0x20 | 0x40 | 0x80 | 0x200); /* LinkInfo, naam, werkmap, argumenten, pictogram, unicode, omgevingsvariabele */
+    u32(0x20); for (var i = 0; i < 24; i++) o.push(0); u32(0); u32(0); u32(1); u16(0); u16(0); u32(0); u32(0);
+    /* LinkInfo met het lokale pad van explorer.exe */
+    var vol = [17, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0], base = ansi(target), hdr = 0x1C, volOff = hdr, baseOff = volOff + vol.length, sufOff = baseOff + base.length;
+    u32(sufOff + 1); u32(hdr); u32(1); u32(volOff); u32(baseOff); u32(0); u32(sufOff); b(vol); b(base); o.push(0);
+    /* StringData */
+    str(desc); str(workDir); str(args); str(icon);
+    /* ExtraData: %windir%\explorer.exe, zodat het ook werkt als Windows niet op C: staat */
+    u32(0x314); u32(0xA0000001); b(ansi(expTarget, 260)); b(uni(expTarget, 520));
+    u32(0);
+    return new Uint8Array(o);
+  }
+  function renderInstall() {
+    var here = htmlPathWin(), dir = htmlDirWin(), inDocs = here && /\\(Documents|Documenten)\\MeBabs\\[^\\]+$/i.test(here), cmd = here ? 'explorer.exe "' + here + '"' : '';
+    var h = '<div class="crumb"><a href="#/">Vergaderingen</a> › Installatie</div><div class="head"><h1>MeBabs installeren</h1></div>';
+    h += '<section class="card wk"><h2>1. Een vaste plek voor MeBabs</h2>' +
+      '<p>Zet <code>MeBabs.html</code> in een eigen map <b>MeBabs</b> in <b>Documenten</b>. Op die plek vervang je het bestand later ook door een nieuwe versie.</p>' +
+      (here ? '<p class="' + (inDocs ? 'okline' : 'warnline') + '">' + (inDocs ? '✓ Dit bestand staat op een goede plek: ' : 'Dit bestand staat nu hier: ') + '<code>' + esc(here) + '</code>' + (inDocs ? '' : '. Verplaats het naar <code>Documenten\\MeBabs</code> en open het daar opnieuw, voordat je de snelkoppeling maakt.') + '</p>' : '<p class="warnline">Open MeBabs als bestand (dubbelklik op <code>MeBabs.html</code>) om de snelkoppeling te kunnen maken.</p>') + '</section>';
+    h += '<section class="card wk"><h2>2. De datamap</h2>' +
+      (A.store && A.store.kind === 'map' ? '<p class="okline">✓ De gegevens staan in de map <b>' + esc(A.store.name) + '</b>.</p>' : A.store ? '<p>De gegevens worden nu in de browser bewaard. Wil je ze in een map op je computer? Klik dan op <b>Datamap kiezen</b>.</p>' : '') +
+      '<p>Klik op <b>Datamap kiezen</b> en kies de map <b>MeBabs</b> waar <code>MeBabs.html</code> in staat. MeBabs maakt daarin de map <b>mebabs-data</b> aan, met de submappen <b>Vergaderingen</b>, <b>Aantekeningen</b> en <b>Actielijst</b>, en zet het icoon <code>MeBabs.ico</code> naast <code>MeBabs.html</code>.</p>' +
+      '<pre class="tree">Documenten\\MeBabs\\\n  MeBabs.html\n  MeBabs.ico\n  mebabs-data\\\n    Vergaderingen\\\n    Aantekeningen\\\n    Actielijst\\\n    mebabs.json</pre>' +
+      '<p><button class="btn' + (A.store && A.store.kind === 'map' ? '' : ' pri') + '" id="insPick">📁 Datamap kiezen…</button></p></section>';
+    h += '<section class="card wk"><h2>3. Snelkoppeling op het bureaublad en in de taakbalk</h2>' +
+      '<p>De snelkoppeling start <code>explorer.exe</code> met MeBabs als bestand. Daardoor kun je hem ook aan de taakbalk vastmaken.</p><ol>' +
+      '<li>Klik op <b>Snelkoppeling downloaden</b>. Vraagt Edge of je het bestand wilt bewaren, kies dan <b>Behouden</b>.</li>' +
+      '<li>Open je map <b>Downloads</b> en sleep <b>MeBabs</b> naar het bureaublad.</li>' +
+      '<li>Sleep de snelkoppeling van het bureaublad naar de <b>taakbalk</b>. Of klik er met de rechtermuisknop op en kies <b>Aan taakbalk vastmaken</b> (in Windows 11 eerst <b>Meer opties weergeven</b>).</li></ol>' +
+      '<p><button class="btn pri" id="insLnk"' + (here ? '' : ' disabled') + '>⤓ Snelkoppeling downloaden</button> <button class="btn" id="insIco">⤓ Icoon downloaden</button></p>' +
+      '<p class="muted">Het icoon staat in de snelkoppeling als <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code>. ' + (A.iconPlaced ? 'Dat bestand heeft MeBabs al neergezet. ' : 'Dat bestand zet MeBabs neer als je in stap 2 de map MeBabs kiest; anders download je het hier en zet je het naast MeBabs.html. ') + 'Ziet de snelkoppeling er niet goed uit, kies dan in de eigenschappen <b>Ander pictogram…</b> en blader naar <code>MeBabs.ico</code>.</p>' +
+      (here ? '<details><summary>Liever zelf een snelkoppeling maken?</summary><ol><li>Klik met de rechtermuisknop op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li><li>Plak bij <i>Typ de locatie van het item</i>:</li></ol><div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3"><li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li><li>Klik met de rechtermuisknop op de snelkoppeling › <b>Eigenschappen</b> › <b>Ander pictogram…</b> en kies <code>MeBabs.ico</code>.</li></ol></details>' : '') + '</section>';
+    h += '<p><a class="btn" href="#/">Klaar, naar de vergaderingen</a></p>';
+    setHTML($('#main'), h);
+    $('#insPick').onclick = chooseFolder;
+    $('#insIco').onclick = function () { dl(icoBlob(), 'MeBabs.ico'); };
+    var l = $('#insLnk'); if (l) l.onclick = function () {
+      if (!here) return;
+      dl(new Blob([makeLnk('"' + here + '"', dir, dir + '\\MeBabs.ico', 'MeBabs: vergaderingen, stukken en aantekeningen')], { type: 'application/octet-stream' }), 'MeBabs.lnk');
+      toast('De snelkoppeling staat in Downloads. Sleep hem naar het bureaublad en daarna naar de taakbalk.', 'ok');
+    };
+    var c = $('#insCopy'); if (c) c.onclick = async function () { var ok = false; try { await navigator.clipboard.writeText(cmd); ok = true; } catch (e) {} toast(ok ? 'Gekopieerd. Plak het met Ctrl+V.' : 'Kopiëren lukte niet. Selecteer de tekst en druk op Ctrl+C.', ok ? 'ok' : 'warn'); };
   }
   function row(m, cols) {
     return '<tr data-id="' + esc(m.id) + '">' + cols.map(function (c) { return '<td class="c-' + c + '">' + cell(m, c) + '</td>'; }).join('') + '</tr>';
@@ -1209,4 +1290,4 @@
     route();
   }
   start().catch(function (e) { setHTML($('#main'), '<div class="card welcome"><h1>Er ging iets mis bij het starten</h1><p>' + esc(e.message || e) + '</p><button class="btn" id="useIdb">In de browser bewaren</button></div>'); $('#useIdb').onclick = function () { useStore(new BrowserStore()); }; });
-  if (W.__VA_TEST) W.__va = { findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };
+  if (W.__VA_TEST) W.__va = { makeLnk: makeLnk, htmlPathWin: htmlPathWin, findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };

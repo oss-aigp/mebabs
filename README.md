@@ -79,39 +79,48 @@ Maak de map **MeBabs** in **Documenten** aan als die nog niet bestaat. Op die pl
 
 ### Stap 4. De datamap kiezen
 
-De eerste keer vraagt MeBabs waar de gegevens moeten komen.
+De eerste keer laat MeBabs een korte uitleg zien.
 
-1. Klik op **📁 Datamap kiezen…**. Het venster opent in **Documenten**.
-2. Kies **Documenten**, of de map **MeBabs** als je die in stap 2 hebt gemaakt, en klik op **Map selecteren**.
-   Kies je een map met andere bestanden erin, dan maakt MeBabs daarin zelf een submap **MeBabs** aan.
+1. Klik op **📁 Datamap kiezen…**.
+2. Kies de map **MeBabs** waar `MeBabs.html` in staat (stap 2) en klik op **Map selecteren**.
 3. Edge vraagt: *"MeBabs wil wijzigingen in bestanden opslaan"*. Klik op **Wijzigingen opslaan**.
 
-MeBabs maakt dan deze mappen aan:
+MeBabs maakt dan zelf de map **mebabs-data** aan en zet het icoon naast `MeBabs.html`:
 
 ```
-MeBabs\
-  Vergaderingen\    per vergadering een submap met de stukken
-  Aantekeningen\    de aantekeningen per vergadering (jjjjmmdd Titel.txt)
-  Actielijst\       Actielijst.txt
-  mebabs.json       het register van MeBabs (niet zelf aanpassen)
+Documenten\MeBabs\
+  MeBabs.html
+  MeBabs.ico        het icoon voor de snelkoppeling
+  mebabs-data\
+    Vergaderingen\    per vergadering een submap met de stukken
+    Aantekeningen\    de aantekeningen per vergadering (jjjjmmdd Titel.txt)
+    Actielijst\       Actielijst.txt
+    mebabs.json       het register van MeBabs (niet zelf aanpassen)
 ```
+
+Kies je een map waarin al gegevens van MeBabs staan (bijvoorbeeld je oude datamap), dan gebruikt MeBabs die gewoon.
 
 > **Elke keer dat je MeBabs opent**, vraagt Edge één keer of MeBabs de map opnieuw mag gebruiken. Dat is een beveiligingsregel van de browser. Klik op **Map openen** en daarna op **Toestaan**.
 
-> Mag je geen map kiezen, bijvoorbeeld omdat de beheerder dat heeft uitgezet? Kies dan **bewaar alles in de browser**. MeBabs werkt dan ook, maar alleen in deze browser op deze computer. Je krijgt dan geen bestanden in een map, en het bureaublad-icoon werkt niet.
+> Mag je geen map kiezen, bijvoorbeeld omdat de beheerder dat heeft uitgezet? Kies dan **bewaar alles in de browser**. MeBabs werkt dan ook, maar alleen in deze browser op deze computer.
 
-### Stap 5. Snelkoppeling met icoon (optioneel)
+### Stap 5. Snelkoppeling op het bureaublad en in de taakbalk
 
-Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adresbalk?
+Na het kiezen van de datamap opent MeBabs de pagina **MeBabs installeren** (later terug te vinden via **?** rechtsboven).
 
-1. Klik met de rechtermuisknop op het bureaublad en kies **Nieuw** › **Snelkoppeling**.
-2. Plak bij *Locatie van het item* het volgende. Vervang het pad door de plek waar jouw `MeBabs.html` staat, en let op de schuine strepen `/`:
-   ```
-   "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --app="file:///C:/Users/JOUWNAAM/Documents/MeBabs/MeBabs.html"
-   ```
-   > Weet je het pad niet? Sleep `MeBabs.html` naar de adresbalk van Edge. Daar zie je dan het adres dat met `file:///` begint.
-3. Geef de snelkoppeling de naam **MeBabs** en klik op **Voltooien**.
-4. Klik met de rechtermuisknop op de snelkoppeling en kies **Eigenschappen** › **Ander pictogram…** › **Bladeren**. Kies `icons/2-tafel.ico` uit deze repository. Zet het .ico-bestand eerst in je MeBabs-map.
+1. Klik op **⤓ Snelkoppeling downloaden**. Vraagt Edge of je het bestand wilt bewaren, kies dan **Behouden**.
+2. Open de map **Downloads** en sleep **MeBabs** naar het bureaublad.
+3. Sleep de snelkoppeling naar de **taakbalk**, of klik er met de rechtermuisknop op en kies **Aan taakbalk vastmaken** (in Windows 11 eerst **Meer opties weergeven**).
+
+De snelkoppeling start `explorer.exe` met het pad van `MeBabs.html` als argument, bijvoorbeeld:
+
+```
+C:\Windows\explorer.exe "C:\Users\JOUWNAAM\Documents\MeBabs\MeBabs.html"
+```
+
+Doordat het doel een programma is (`explorer.exe`) en niet het HTML-bestand zelf, kun je de snelkoppeling aan de taakbalk vastmaken. Explorer opent MeBabs dan in je standaardbrowser. Het icoon is `MeBabs.ico` naast `MeBabs.html`.
+
+Liever zelf maken? Klik met de rechtermuisknop op het bureaublad › **Nieuw** › **Snelkoppeling**, plak de regel hierboven met jouw pad (de installatiepagina toont hem met een knop **Kopiëren**), noem hem **MeBabs** en kies via **Eigenschappen** › **Ander pictogram…** het bestand `MeBabs.ico`.
 
 <p align="center"><img src="docs/iconen.png" width="640" alt="De vier icoonontwerpen"></p>
 

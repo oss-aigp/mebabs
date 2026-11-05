@@ -22,7 +22,9 @@ const app = "(function(){'use strict';var W=window,D=document;\n" +
   ['mail-parser.js', 'convert.js', 'pptx-render.js', 'editor.js', 'notes.js', 'reports.js', 'files.js', 'app-ui.js'].map(src).join('\n') + '\n})();'
 // De Outlook-macro voor de weekagenda staat in outlook/; die wordt in de app gezet zodat gebruikers hem kunnen kopiëren.
 const macro = fs.readFileSync(path.join(root, 'outlook', 'MeBabs-weekagenda.bas'), 'utf8').replace(/\r?\n/g, '\r\n');
-const appWithMacro = app.replace('__OUTLOOK_MACRO__', () => JSON.stringify(macro));
+const appWithMacro = app.replace('__OUTLOOK_MACRO__', () => JSON.stringify(macro))
+  // het icoon (.ico) voor de snelkoppeling op het bureaublad
+  .replace('__MEBABS_ICO__', () => JSON.stringify(fs.readFileSync(path.join(root, 'icons', '2-tafel.ico')).toString('base64')));
 
 const libs = [mod('pdf-lib/dist/pdf-lib.min.js'), mod('jszip/dist/jszip.min.js')].map((f) => fs.readFileSync(f, 'utf8')).join('\n;\n');
 const pdfjs = bundleIife(mod('pdfjs-dist/build/pdf.worker.min.mjs'), 'pdfjsWorker') + '\n;\n' + bundleIife(mod('pdfjs-dist/build/pdf.min.mjs'), 'pdfjsLib');
