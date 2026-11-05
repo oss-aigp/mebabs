@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- MeBabs-versie: 2.5.0 -->
+<!-- MeBabs-versie: 2.6.0 -->
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MeBabs</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOC4wIiBjeT0iNDguMCIgcj0iMTMiLz4gPGNpcmNsZSBjeD0iMTg0LjYiIGN5PSI3MS40IiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIyMDguMCIgY3k9IjEyOC4wIiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIxODQuNiIgY3k9IjE4NC42IiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIxMjguMCIgY3k9IjIwOC4wIiByPSIxMyIvPiA8Y2lyY2xlIGN4PSI3MS40IiBjeT0iMTg0LjYiIHI9IjEzIi8+IDxjaXJjbGUgY3g9IjQ4LjAiIGN5PSIxMjguMCIgcj0iMTMiLz4gPGNpcmNsZSBjeD0iNzEuNCIgY3k9IjcxLjQiIHI9IjEzIi8+IDwvZz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iMTI4IiByPSI1MiIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iLjk2Ii8+IDxyZWN0IHg9IjEwNiIgeT0iMTAyIiB3aWR0aD0iNDQiIGhlaWdodD0iNTQiIHJ4PSI2IiBmaWxsPSIjMGY2ZTc0Ii8+IDxyZWN0IHg9IjExMyIgeT0iMTEzIiB3aWR0aD0iMzAiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iI2ZmZmZmZiIvPiA8cmVjdCB4PSIxMTMiIHk9IjEyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPHJlY3QgeD0iMTEzIiB5PSIxMzUiIHdpZHRoPSIyOCIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjOWVlNmRkIi8+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjQ4IiByPSIxMyIgZmlsbD0iI2ZmZDQwMCIvPiA8L3N2Zz4g">
@@ -334,6 +334,15 @@ tbody tr:hover .pill,.tl li:hover .pill{background:#fff}
 .helpbody code{background:var(--row);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12.5px}
 .helpbody hr{border:0;border-top:1px solid var(--line);margin:18px 0 10px}.helpbody .link{padding:2px 4px}
 @media (prefers-reduced-motion:reduce){.helppanel,.helpbg{transition:none}}
+.helptabs{display:flex;gap:4px;padding:10px 14px 0;border-bottom:1px solid var(--line);background:var(--row)}
+.helptabs button{border:0;background:none;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;color:var(--mute);cursor:pointer;border-radius:6px 6px 0 0;border-bottom:3px solid transparent}
+.helptabs button:hover{color:var(--brand)}.helptabs button.on{color:var(--brand);background:var(--card);border-bottom-color:var(--hemel)}
+.helph{font-size:17px;margin:2px 0 8px}
+.faq{border:1px solid var(--line);border-radius:8px;margin:0 0 8px;background:var(--card)}
+.faq summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--brand);list-style-position:inside}
+.faq[open] summary{border-bottom:1px solid var(--line)}.faq>div{padding:10px 14px 4px}
+.helpfoot{padding:8px 22px;border-top:1px solid var(--line);font-size:12px;color:var(--mute);background:var(--row)}
+.helpbody .tree{max-width:none;font-size:12px}
 </style></head><body>
 <header><a class="logo" href="#/"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4gPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTRiOGE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMGY2ZTc0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+IDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNTYiIGZpbGw9InVybCgjZykiLz4gPGcgZmlsbD0iI2ZmZmZmZiI+IDxjaXJjbGUgY3g9IjEyOC4wIiBjeT0iNDguMCIgcj0iMTMiLz4gPGNpcmNsZSBjeD0iMTg0LjYiIGN5PSI3MS40IiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIyMDguMCIgY3k9IjEyOC4wIiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIxODQuNiIgY3k9IjE4NC42IiByPSIxMyIvPiA8Y2lyY2xlIGN4PSIxMjguMCIgY3k9IjIwOC4wIiByPSIxMyIvPiA8Y2lyY2xlIGN4PSI3MS40IiBjeT0iMTg0LjYiIHI9IjEzIi8+IDxjaXJjbGUgY3g9IjQ4LjAiIGN5PSIxMjguMCIgcj0iMTMiLz4gPGNpcmNsZSBjeD0iNzEuNCIgY3k9IjcxLjQiIHI9IjEzIi8+IDwvZz4gPGNpcmNsZSBjeD0iMTI4IiBjeT0iMTI4IiByPSI1MiIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iLjk2Ii8+IDxyZWN0IHg9IjEwNiIgeT0iMTAyIiB3aWR0aD0iNDQiIGhlaWdodD0iNTQiIHJ4PSI2IiBmaWxsPSIjMGY2ZTc0Ii8+IDxyZWN0IHg9IjExMyIgeT0iMTEzIiB3aWR0aD0iMzAiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iI2ZmZmZmZiIvPiA8cmVjdCB4PSIxMTMiIHk9IjEyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiM5ZWU2ZGQiLz4gPHJlY3QgeD0iMTEzIiB5PSIxMzUiIHdpZHRoPSIyOCIgaGVpZ2h0PSI1IiByeD0iMi41IiBmaWxsPSIjOWVlNmRkIi8+IDxjaXJjbGUgY3g9IjEyOCIgY3k9IjQ4IiByPSIxMyIgZmlsbD0iI2ZmZDQwMCIvPiA8L3N2Zz4g" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div><button type="button" class="helpbtn" id="helpBtn" title="Help bij deze pagina (F1)" aria-label="Help bij deze pagina">?</button></header>
 <div class="wrap"><main id="main"></main></div>
@@ -3201,6 +3210,57 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     '<li>Open MeBabs, klik rechtsboven bij de map op <b>wijzig</b> en kies die map <code>mebabs-data</code>.</li></ol>' +
     '<p class="muted">Losse vergadermappen terugkopiëren in <code>Vergaderingen</code> werkt niet: MeBabs werkt vanuit <code>mebabs.json</code>. Zet altijd de hele map terug.</p>';
 
+  var GITHUB = 'https://github.com/oss-aigp/mebabs', GITHUB_DL = 'https://github.com/oss-aigp/mebabs/blob/main/dist/MeBabs.html';
+  /* versienummer staat als opmerking bovenaan het bestand (<!-- MeBabs-versie: x -->) */
+  function mebabsVersion() { for (var n = D.firstChild; n; n = n.nextSibling) { if (n.nodeType === 8) { var m = /MeBabs-versie:\s*([^\s]+)/.exec(n.nodeValue); if (m) return m[1]; } } return ''; }
+  var UPGRADE_HTML = '<ol><li>Maak eerst een back-up: kopieer de hele map <code>mebabs-data</code>.</li>' +
+    '<li>Open <a href="' + GITHUB_DL + '" target="_blank" rel="noopener">MeBabs.html op GitHub</a> en klik rechtsboven op het pijltje <b>Download raw file</b>. Het bestand komt in je map <b>Downloads</b>.</li>' +
+    '<li>Sluit MeBabs (alle tabbladen met MeBabs).</li>' +
+    '<li>Verplaats het gedownloade <code>MeBabs.html</code> naar <code>Documenten\\MeBabs</code> en kies <b>Het bestand in de doelmap vervangen</b>. Heet het bestand in Downloads <code>MeBabs (1).html</code>, geef het dan eerst de naam <code>MeBabs.html</code>.</li>' +
+    '<li>Open MeBabs weer via je snelkoppeling. Je vergaderingen staan er gewoon: die staan in <code>mebabs-data</code>, niet in het HTML-bestand.</li></ol>' +
+    '<p class="muted">Je gebruikt nu versie <b>' + esc(mebabsVersion() || 'onbekend') + '</b>. Welke versie de nieuwste is, zie je op <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a> bij de laatste wijziging.</p>';
+  var SHORTCUT_HTML = '<ol><li>Klik met de rechtermuisknop op een lege plek op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li>' +
+    '<li>Typ of plak bij <i>Typ de locatie van het item</i>: <code>C:\\Windows\\explorer.exe "C:\\Users\\JOUWNAAM\\Documents\\MeBabs\\MeBabs.html"</code>, met het pad naar jouw <code>MeBabs.html</code>. Op de pagina <a href="#/installatie">MeBabs installeren</a> staat de regel met jouw pad en een knop Kopiëren.</li>' +
+    '<li>Klik op <b>Volgende</b>, noem hem <b>MeBabs</b> en klik op <b>Voltooien</b>.</li>' +
+    '<li>Rechtermuisknop › <b>Eigenschappen</b> › <b>Ander pictogram…</b> › <b>Bladeren</b> en kies <code>MeBabs.ico</code> naast <code>MeBabs.html</code>.</li>' +
+    '<li>Sleep de snelkoppeling naar de <b>taakbalk</b>. Dat kan omdat het doel <code>explorer.exe</code> is en niet het HTML-bestand zelf.</li></ol>';
+  var FAQ = [
+    ['Hoe installeer ik MeBabs?', '<ol><li>Download <a href="' + GITHUB_DL + '" target="_blank" rel="noopener">MeBabs.html van GitHub</a> (rechtsboven: <b>Download raw file</b>).</li>' +
+      '<li>Maak in <b>Documenten</b> een map <b>MeBabs</b> en zet <code>MeBabs.html</code> daarin.</li>' +
+      '<li>Dubbelklik op het bestand. Het opent in Edge of Chrome. Werkt het in een andere browser, kies dan met de rechtermuisknop <b>Openen met › Microsoft Edge</b>.</li>' +
+      '<li>Klik op <b>Datamap kiezen</b> en kies de map <b>MeBabs</b>. MeBabs maakt daarin <code>mebabs-data</code> aan en zet het icoon <code>MeBabs.ico</code> ernaast.</li>' +
+      '<li>Maak een snelkoppeling op het bureaublad en in de taakbalk (zie de vraag hieronder).</li></ol>'],
+    ['Hoe maak ik een snelkoppeling op het bureaublad en in de taakbalk?', SHORTCUT_HTML],
+    ['Hoe maak ik een back-up, en hoe zet ik die terug?', BACKUP_HTML],
+    ['Hoe upgrade ik MeBabs naar een nieuwe versie?', UPGRADE_HTML],
+    ['Ik wil MeBabs zelf doorontwikkelen. Hoe doe ik dat?', '<p>De broncode staat openbaar op <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a>.</p><ol>' +
+      '<li>Installeer <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> (versie 18 of nieuwer) en Git.</li>' +
+      '<li>Haal de code op: <code>git clone ' + GITHUB + '.git</code>, of download de ZIP via de groene knop <b>Code</b>.</li>' +
+      '<li>Ga in de map staan en voer <code>npm install</code> uit, daarna <code>npm run build</code>. Dat maakt <code>dist/MeBabs.html</code>.</li>' +
+      '<li>De code staat in <code>src/</code>: <code>app.html</code> (HTML en alle opmaak), <code>app-ui.js</code> (schermen en opslag), <code>mail-parser.js</code> (mails en agenda lezen), <code>convert.js</code> en <code>pptx-render.js</code> (omzetten naar PDF), <code>editor.js</code> (bewerken), <code>notes.js</code>, <code>reports.js</code>, <code>files.js</code> en <code>help.js</code>.</li>' +
+      '<li>Test je wijziging door <code>dist/MeBabs.html</code> in Edge te openen. Verhoog bij een nieuwe versie het versienummer in <code>package.json</code>.</li>' +
+      '<li>Wil je je wijziging teruggeven? Maak een eigen kopie (<b>Fork</b>) op GitHub en stuur een <b>pull request</b>.</li></ol>' +
+      '<p class="muted">In <code>CLAUDE.md</code> staan de werkafspraken, ook handig als je met een AI-assistent werkt. Er staat nog geen licentie in de repository: wil je MeBabs buiten je eigen gebruik verspreiden of aanpassen, overleg dan met de eigenaar.</p>'],
+    ['Hoe zit het met de veiligheid van mijn informatie?', '<ul>' +
+      '<li><b>Alles blijft op je eigen computer.</b> MeBabs is één HTML-bestand dat in je browser draait. Er is geen server en geen account, en MeBabs stuurt geen mails, stukken of aantekeningen naar internet. Alle onderdelen zitten in het bestand zelf, dus MeBabs werkt ook zonder internet.</li>' +
+      '<li><b>Toegang tot één map.</b> MeBabs kan alleen bij de datamap die jij kiest, en pas nadat je browser daar toestemming voor heeft gevraagd. Daarom vraagt de browser bij elke start of MeBabs de map weer mag gebruiken.</li>' +
+      '<li><b>Je gegevens zijn gewone bestanden</b> in <code>mebabs-data</code>, niet versleuteld. Ze zijn net zo goed beveiligd als je andere documenten: via je Windows-account en de beveiliging van je werkplek.</li>' +
+      '<li><b>OneDrive.</b> Wordt je map Documenten met OneDrive gesynchroniseerd, dan komt <code>mebabs-data</code> ook in de OneDrive van je organisatie. Voor gewone werkstukken is dat meestal prima; volg voor vertrouwelijke of gerubriceerde informatie de regels van je organisatie.</li>' +
+      '<li><b>Bewaar je alles in de browser</b>, dan staan de gegevens in je browserprofiel op deze computer. Wis je de browsergegevens, dan ben je ze kwijt: maak dan regelmatig een export.</li>' +
+      '<li><b>Wat wel naar buiten gaat:</b> alleen wat je zelf doet, zoals <b>Deelnemen</b> (opent de Teams-link), een conceptmail die je in Outlook verstuurt, of een link naar GitHub in deze help.</li>' +
+      '<li><b>Let op bij delen:</b> een PDF die je downloadt met aantekeningen, of de export als één PDF, bevat je markeringen en opmerkingen.</li></ul>'],
+    ['Waarom vraagt de browser elke keer om toestemming?', '<p>Dat is een beveiligingsregel van de browser: een webpagina mag pas bij een map op je computer als jij daar in die sessie toestemming voor geeft. Klik op <b>Map openen</b> en daarna op <b>Toestaan</b>.</p>'],
+    ['Kan ik MeBabs op meerdere computers gebruiken?', '<p>Ja, maar niet tegelijk met dezelfde gegevens. Kopieer de hele map <code>mebabs-data</code> naar de andere computer en kies daar die map. Werk niet op twee computers tegelijk in dezelfde map (bijvoorbeeld via OneDrive): dan kunnen wijzigingen elkaar overschrijven.</p>'],
+  ];
+  var ABOUT_HTML = '<p><b>MeBabs</b> is een vergaderapp in één HTML-bestand. Je sleept mails en uitnodigingen uit Outlook erin, en MeBabs maakt er vergaderingen van met alle stukken, die je kunt lezen, markeren, bewerken en exporteren. Alles blijft op je eigen computer.</p>' +
+    '<h3>Zo werkt het</h3><ol><li><b>Vergaderingen maken</b>: sleep een mail of uitnodiging erin, of lees met <b>Importeer weekagenda</b> je Outlook-agenda in. Titel, datum, tijd, locatie, vergaderlink, genodigden en bijlagen worden overgenomen.</li>' +
+    '<li><b>Stukken</b>: Word, Excel, PowerPoint, afbeeldingen en mails worden automatisch omgezet naar PDF. In de viewer kun je zoeken, markeren en opmerkingen maken; bij Bewerken pas je het origineel aan.</li>' +
+    '<li><b>Vergaderen</b>: met <b>Deelnemen</b> open je de online vergadering, met <b>✎ Aantekeningen</b> maak je aantekeningen. Regels die met <code>!</code> beginnen, worden acties.</li>' +
+    '<li><b>Afronden</b>: <b>Exporteer als één PDF</b> maakt één document met agenda, stukken en aantekeningen. Verslagen en acties vind je terug in de tabbladen <b>Verslagen</b> en <b>Actielijst</b>.</li>' +
+    '<li><b>Terugvinden</b>: in <b>Bestanden</b> staan alle stukken, met versies, en kun je ze openen, downloaden en mailen.</li></ol>' +
+    '<h3>Waar staat wat?</h3><pre class="tree">Documenten\\MeBabs\\\n  MeBabs.html      de app\n  MeBabs.ico       het icoon\n  mebabs-data\\     je gegevens\n    Vergaderingen\\  per vergadering de stukken\n    Aantekeningen\\  de verslagen als .txt\n    Actielijst\\     Actielijst.txt\n    mebabs.json     het register</pre>' +
+    '<h3>Tabbladen</h3><ul><li><b>Vergaderingen</b>: vandaag, morgen, volgende vergaderingen en het archief.</li><li><b>Verslagen</b>: alle aantekeningen als verslag, met een Word-achtige editor.</li><li><b>Actielijst</b>: alle acties, met afvinken, snoozen en een begindatum.</li><li><b>Bestanden</b>: een verkenner met alle stukken.</li></ul>' +
+    '<p>De volledige handleiding staat in de <a href="' + GITHUB + '#readme" target="_blank" rel="noopener">README op GitHub</a>.</p>';
   var HELP = {
     home: { t: 'Vergaderingen', h:
       '<p>Het startscherm met je vergaderingen van vandaag en morgen, en de lijsten met volgende en eerdere vergaderingen.</p>' +
@@ -3283,9 +3343,9 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     install: { t: 'Installatie en back-up', h:
       '<h3>Installeren</h3><ol><li>Zet <code>MeBabs.html</code> in <code>Documenten\\MeBabs</code>.</li>' +
       '<li>Open het bestand in Edge of Chrome en klik op <b>Datamap kiezen</b>. Kies de map <b>MeBabs</b>; MeBabs maakt daarin <code>mebabs-data</code> aan en zet <code>MeBabs.ico</code> naast <code>MeBabs.html</code>.</li>' +
-      '<li>Download op de pagina <a href="#/installatie">MeBabs installeren</a> de snelkoppeling, sleep hem naar het bureaublad en van daar naar de taakbalk.</li></ol>' +
+      '<li>Maak een snelkoppeling op het bureaublad en sleep hem naar de taakbalk (zie hieronder).</li></ol>' +
       '<p>Bij elke start vraagt de browser één keer of MeBabs de map weer mag gebruiken: klik op <b>Map openen</b> en <b>Toestaan</b>.</p>' +
-      '<h3>Bijwerken naar een nieuwe versie</h3><p>Vervang <code>MeBabs.html</code> door de nieuwe versie. Je gegevens in <code>mebabs-data</code> blijven staan.</p>' + BACKUP_HTML },
+      '<h3>Snelkoppeling</h3>' + SHORTCUT_HTML + '<h3>Bijwerken naar een nieuwe versie</h3>' + UPGRADE_HTML + BACKUP_HTML },
   };
   function helpTopic() {
     var h = location.hash || '#/';
@@ -3298,23 +3358,34 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     if (h === '#/installatie') return 'install';
     return 'home';
   }
-  function openHelp() {
-    var old = $('#helpPanel'); if (old) { closeHelp(); return; }
-    var k = helpTopic(), t = HELP[k], bg = D.createElement('div'), p = D.createElement('aside');
+  function faqHtml() { return '<p>Klik op een vraag voor het antwoord.</p>' + FAQ.map(function (q) { return '<details class="faq"><summary>' + esc(q[0]) + '</summary><div>' + q[1] + '</div></details>'; }).join(''); }
+  function openHelp(tab) {
+    if ($('#helpPanel')) { closeHelp(); return; }
+    var k = helpTopic(), bg = D.createElement('div'), p = D.createElement('aside');
     bg.className = 'helpbg'; bg.id = 'helpBg'; p.className = 'helppanel'; p.id = 'helpPanel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-labelledby', 'helpT');
-    setHTML(p, '<div class="helphead"><span class="helpq">?</span><h2 id="helpT">Help: ' + esc(t.t) + '</h2><button type="button" class="helpx" id="helpX" title="Sluiten (Esc)" aria-label="Sluiten">✕</button></div>' +
-      '<div class="helpbody">' + t.h + '<hr><p class="muted">Andere onderwerpen: ' + Object.keys(HELP).filter(function (x) { return x !== k; }).map(function (x) { return '<button type="button" class="link" data-help="' + x + '">' + esc(HELP[x].t) + '</button>'; }).join(' · ') + '</p></div>');
+    setHTML(p, '<div class="helphead"><span class="helpq">?</span><h2 id="helpT">Help</h2><button type="button" class="helpx" id="helpX" title="Sluiten (Esc)" aria-label="Sluiten">✕</button></div>' +
+      '<div class="helptabs" role="tablist"><button type="button" role="tab" data-tab="page">' + esc(HELP[k].t) + '</button><button type="button" role="tab" data-tab="faq">Veelgestelde vragen</button><button type="button" role="tab" data-tab="about">Hoe werkt MeBabs</button></div>' +
+      '<div class="helpbody" id="helpBody"></div><div class="helpfoot">MeBabs ' + esc(mebabsVersion()) + ' · <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a></div>');
     D.body.appendChild(bg); D.body.appendChild(p);
     requestAnimationFrame(function () { bg.classList.add('on'); p.classList.add('on'); });
     bg.onclick = closeHelp; $('#helpX').onclick = closeHelp;
-    $$('[data-help]', p).forEach(function (b) { b.onclick = function () { var x = b.dataset.help; setHTML($('#helpT'), 'Help: ' + esc(HELP[x].t)); var body = $('.helpbody', p); setHTML(body, HELP[x].h + '<hr><p class="muted"><button type="button" class="link" id="helpBack">‹ Terug naar ' + esc(t.t) + '</button></p>'); body.scrollTop = 0; $('#helpBack').onclick = function () { closeHelp(); openHelp(); }; bindLinks(); }; });
-    function bindLinks() { $$('.helpbody a[href^="#"]', p).forEach(function (a) { a.addEventListener('click', closeHelp); }); }
-    bindLinks();
+    function show(t, topic) {
+      var body = $('#helpBody'), key = topic || k;
+      $$('[data-tab]', p).forEach(function (b) { var on = b.dataset.tab === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      if (t === 'faq') setHTML(body, faqHtml());
+      else if (t === 'about') setHTML(body, ABOUT_HTML);
+      else setHTML(body, '<h2 class="helph">' + esc(HELP[key].t) + '</h2>' + HELP[key].h + '<hr><p class="muted">Andere onderwerpen: ' + Object.keys(HELP).filter(function (x) { return x !== key; }).map(function (x) { return '<button type="button" class="link" data-help="' + x + '">' + esc(HELP[x].t) + '</button>'; }).join(' · ') + '</p>');
+      body.scrollTop = 0;
+      $$('[data-help]', body).forEach(function (b) { b.onclick = function () { show('page', b.dataset.help); }; });
+      $$('a[href^="#"]', body).forEach(function (a) { a.addEventListener('click', closeHelp); });
+    }
+    $$('[data-tab]', p).forEach(function (b) { b.onclick = function () { show(b.dataset.tab); }; });
+    show(tab || 'page');
     $('#helpX').focus();
   }
   function closeHelp() { var p = $('#helpPanel'), bg = $('#helpBg'); if (p) p.remove(); if (bg) bg.remove(); }
   function initHelp() {
-    var b = $('#helpBtn'); if (b) b.onclick = openHelp;
+    var b = $('#helpBtn'); if (b) b.onclick = function () { openHelp(); };
     D.addEventListener('keydown', function (e) {
       if (e.key === 'F1') { e.preventDefault(); openHelp(); }
       else if (e.key === 'Escape' && $('#helpPanel')) { e.stopPropagation(); closeHelp(); }
@@ -3811,7 +3882,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       '<p>Sleep mails en uitnodigingen uit Outlook naar MeBabs. Er wordt dan automatisch een vergadering aangemaakt, met de titel, datum, tijd, locatie en alle stukken.</p>' +
       '<ol class="steps"><li><b>Geef MeBabs een vaste plek</b>: zet <code>MeBabs.html</code> in <b>Documenten\\MeBabs</b>' + (here ? ' <span class="muted">(nu: ' + esc(here) + ')</span>' : '') + '.</li>' +
       '<li><b>Kies de datamap</b>: klik hieronder en kies de map <b>MeBabs</b> waar dit bestand in staat. MeBabs maakt daarin de map <b>mebabs-data</b> aan en zet er het icoon naast.</li>' +
-      '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk. Dat wijst MeBabs je na het kiezen van de map.</li></ol>' +
+      '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk, met <code>C:\\Windows\\explorer.exe</code> ervoor. Hoe dat stap voor stap gaat, laat MeBabs je zien na het kiezen van de map.</li></ol>' +
       (fsOk ? '<p><button class="btn pri" id="pickDir">📁 Datamap kiezen…</button> <a class="btn" href="#/installatie">Uitgebreide uitleg</a></p>' : '<p class="note">Deze browser kan geen map op je computer gebruiken. Open MeBabs in Microsoft Edge of Google Chrome.</p>') +
       '<p class="note"><b>Back-up:</b> kopieer af en toe de hele map <b>mebabs-data</b>, mét het bestand <b>mebabs.json</b> erin, naar bijvoorbeeld OneDrive of een netwerkschijf. Terugzetten doe je door die map weer als datamap te kiezen. Meer uitleg vind je onder de knop <b>?</b> rechtsboven.</p>' +
       '<p class="note">Mag je geen map kiezen? <button class="link" id="useIdb">Bewaar alles in de browser</button> (alleen op deze computer, zonder bestanden).</p>' +
@@ -3839,32 +3910,8 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     if (!exists) { var fh = await dir.getFileHandle('MeBabs.ico', { create: true }), w = await fh.createWritable(); await w.write(icoBlob()); await w.close(); }
     A.iconPlaced = true; return true;
   }
-  /* Windows-snelkoppeling (MS-SHLLINK): doel explorer.exe met het pad van MeBabs.html als argument. Zo kan hij ook aan de taakbalk. */
-  function makeLnk(args, workDir, icon, desc) {
-    var o = [];
-    function b(a) { for (var i = 0; i < a.length; i++) o.push(a[i] & 255); }
-    function u16(v) { o.push(v & 255, (v >> 8) & 255); }
-    function u32(v) { o.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); }
-    function ansi(t, len) { var a = []; for (var i = 0; i < t.length; i++) a.push(t.charCodeAt(i) < 256 ? t.charCodeAt(i) : 63); a.push(0); while (len && a.length < len) a.push(0); return a; }
-    function uni(t, len) { var a = []; for (var i = 0; i < t.length; i++) { var c = t.charCodeAt(i); a.push(c & 255, c >> 8); } a.push(0, 0); while (a.length < len) a.push(0); return a; }
-    function str(t) { u16(t.length); for (var i = 0; i < t.length; i++) u16(t.charCodeAt(i)); }
-    var target = 'C:\\Windows\\explorer.exe', expTarget = '%windir%\\explorer.exe';
-    /* ShellLinkHeader */
-    u32(0x4C); b([0x01, 0x14, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46]);
-    u32(0x02 | 0x04 | 0x10 | 0x20 | 0x40 | 0x80 | 0x200); /* LinkInfo, naam, werkmap, argumenten, pictogram, unicode, omgevingsvariabele */
-    u32(0x20); for (var i = 0; i < 24; i++) o.push(0); u32(0); u32(0); u32(1); u16(0); u16(0); u32(0); u32(0);
-    /* LinkInfo met het lokale pad van explorer.exe */
-    var vol = [17, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0], base = ansi(target), hdr = 0x1C, volOff = hdr, baseOff = volOff + vol.length, sufOff = baseOff + base.length;
-    u32(sufOff + 1); u32(hdr); u32(1); u32(volOff); u32(baseOff); u32(0); u32(sufOff); b(vol); b(base); o.push(0);
-    /* StringData */
-    str(desc); str(workDir); str(args); str(icon);
-    /* ExtraData: %windir%\explorer.exe, zodat het ook werkt als Windows niet op C: staat */
-    u32(0x314); u32(0xA0000001); b(ansi(expTarget, 260)); b(uni(expTarget, 520));
-    u32(0);
-    return new Uint8Array(o);
-  }
   function renderInstall() {
-    var here = htmlPathWin(), dir = htmlDirWin(), inDocs = here && /\\(Documents|Documenten)\\MeBabs\\[^\\]+$/i.test(here), cmd = here ? 'explorer.exe "' + here + '"' : '';
+    var here = htmlPathWin(), dir = htmlDirWin(), inDocs = here && /\\(Documents|Documenten)\\MeBabs\\[^\\]+$/i.test(here), cmd = 'C:\\Windows\\explorer.exe "' + (here || 'C:\\Users\\JOUWNAAM\\Documents\\MeBabs\\MeBabs.html') + '"';
     var h = '<div class="crumb"><a href="#/">Vergaderingen</a> › Installatie</div><div class="head"><h1>MeBabs installeren</h1></div>';
     h += '<section class="card wk"><h2>1. Een vaste plek voor MeBabs</h2>' +
       '<p>Zet <code>MeBabs.html</code> in een eigen map <b>MeBabs</b> in <b>Documenten</b>. Op die plek vervang je het bestand later ook door een nieuwe versie.</p>' +
@@ -3875,23 +3922,20 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
       '<pre class="tree">Documenten\\MeBabs\\\n  MeBabs.html\n  MeBabs.ico\n  mebabs-data\\\n    Vergaderingen\\\n    Aantekeningen\\\n    Actielijst\\\n    mebabs.json</pre>' +
       '<p><button class="btn' + (A.store && A.store.kind === 'map' ? '' : ' pri') + '" id="insPick">📁 Datamap kiezen…</button></p></section>';
     h += '<section class="card wk"><h2>3. Snelkoppeling op het bureaublad en in de taakbalk</h2>' +
-      '<p>De snelkoppeling start <code>explorer.exe</code> met MeBabs als bestand. Daardoor kun je hem ook aan de taakbalk vastmaken.</p><ol>' +
-      '<li>Klik op <b>Snelkoppeling downloaden</b>. Vraagt Edge of je het bestand wilt bewaren, kies dan <b>Behouden</b>.</li>' +
-      '<li>Open je map <b>Downloads</b> en sleep <b>MeBabs</b> naar het bureaublad.</li>' +
+      '<p>De snelkoppeling start <code>explorer.exe</code> met MeBabs als bestand. Omdat het doel een programma is, kun je hem daarna ook naar de taakbalk slepen.</p><ol>' +
+      '<li>Klik met de rechtermuisknop op een lege plek op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li>' +
+      '<li>Plak bij <i>Typ de locatie van het item</i> deze regel' + (here ? ' (klik op <b>Kopiëren</b>)' : ' en vervang het pad door de plek van jouw <code>MeBabs.html</code>') + ':</li></ol>' +
+      '<div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3">' +
+      '<li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li>' +
+      '<li>Klik met de rechtermuisknop op de nieuwe snelkoppeling en kies <b>Eigenschappen</b>. Klik op <b>Ander pictogram…</b> › <b>Bladeren</b>, kies <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code> en klik twee keer op <b>OK</b>.</li>' +
       '<li>Sleep de snelkoppeling van het bureaublad naar de <b>taakbalk</b>. Of klik er met de rechtermuisknop op en kies <b>Aan taakbalk vastmaken</b> (in Windows 11 eerst <b>Meer opties weergeven</b>).</li></ol>' +
-      '<p><button class="btn pri" id="insLnk"' + (here ? '' : ' disabled') + '>⤓ Snelkoppeling downloaden</button> <button class="btn" id="insIco">⤓ Icoon downloaden</button></p>' +
-      '<p class="muted">Het icoon staat in de snelkoppeling als <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code>. ' + (A.iconPlaced ? 'Dat bestand heeft MeBabs al neergezet. ' : 'Dat bestand zet MeBabs neer als je in stap 2 de map MeBabs kiest; anders download je het hier en zet je het naast MeBabs.html. ') + 'Ziet de snelkoppeling er niet goed uit, kies dan in de eigenschappen <b>Ander pictogram…</b> en blader naar <code>MeBabs.ico</code>.</p>' +
-      (here ? '<details><summary>Liever zelf een snelkoppeling maken?</summary><ol><li>Klik met de rechtermuisknop op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li><li>Plak bij <i>Typ de locatie van het item</i>:</li></ol><div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3"><li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li><li>Klik met de rechtermuisknop op de snelkoppeling › <b>Eigenschappen</b> › <b>Ander pictogram…</b> en kies <code>MeBabs.ico</code>.</li></ol></details>' : '') + '</section>';
-    h += '<section class="card wk"><h2>4. Back-up</h2>' + BACKUP_HTML.replace(/<h3>/g, '<h3 class="sub">') + '</section>';
+      '<p class="muted">' + (A.iconPlaced ? 'Het icoon <code>MeBabs.ico</code> heeft MeBabs al naast <code>MeBabs.html</code> gezet. ' : 'Het icoon <code>MeBabs.ico</code> zet MeBabs naast <code>MeBabs.html</code> als je in stap 2 de map MeBabs kiest. Staat het er niet? ') + '<button type="button" class="link" id="insIco">Icoon downloaden</button> en zet het naast <code>MeBabs.html</code>.</p></section>';
+    h += '<section class="card wk"><h2>4. Bijwerken naar een nieuwe versie</h2>' + UPGRADE_HTML + '</section>';
+    h += '<section class="card wk"><h2>5. Back-up</h2>' + BACKUP_HTML.replace(/<h3>/g, '<h3 class="sub">') + '</section>';
     h += '<p><a class="btn" href="#/">Klaar, naar de vergaderingen</a></p>';
     setHTML($('#main'), h);
     $('#insPick').onclick = chooseFolder;
     $('#insIco').onclick = function () { dl(icoBlob(), 'MeBabs.ico'); };
-    var l = $('#insLnk'); if (l) l.onclick = function () {
-      if (!here) return;
-      dl(new Blob([makeLnk('"' + here + '"', dir, dir + '\\MeBabs.ico', 'MeBabs: vergaderingen, stukken en aantekeningen')], { type: 'application/octet-stream' }), 'MeBabs.lnk');
-      toast('De snelkoppeling staat in Downloads. Sleep hem naar het bureaublad en daarna naar de taakbalk.', 'ok');
-    };
     var c = $('#insCopy'); if (c) c.onclick = async function () { var ok = false; try { await navigator.clipboard.writeText(cmd); ok = true; } catch (e) {} toast(ok ? 'Gekopieerd. Plak het met Ctrl+V.' : 'Kopiëren lukte niet. Selecteer de tekst en druk op Ctrl+C.', ok ? 'ok' : 'warn'); };
   }
   function row(m, cols) {
@@ -3934,7 +3978,8 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     function qPick() { if (!A.qbag || !A.qbag.length) { A.qbag = Q.map(function (q, k) { return k; }).filter(function (k) { return k !== A.qi; }); } return A.qbag.splice(Math.floor(Math.random() * A.qbag.length), 1)[0]; }
     if (A.qi == null || A.qi >= Q.length) A.qi = qPick(); /* elke keer dat MeBabs opent een willekeurige wijsheid */
     var hr = new Date().getHours(), greet = hr < 6 ? 'Goedenacht' : hr < 12 ? 'Goedemorgen' : hr < 18 ? 'Goedemiddag' : 'Goedenavond';
-    var sum = !today.length ? 'Je hebt vandaag geen vergaderingen.' : 'Je hebt vandaag <b>' + today.length + ' vergadering' + (today.length === 1 ? '' : 'en') + '</b>.';
+    var nowHm = pad(new Date().getHours()) + ':' + pad(new Date().getMinutes()), over = today.length && today.every(function (m) { return (m.end || m.start || '00:00') <= nowHm; });
+    var sum = !today.length ? 'Je hebt vandaag geen vergaderingen.' : (over ? 'Je had' : 'Je hebt') + ' vandaag <b>' + today.length + ' vergadering' + (today.length === 1 ? '' : 'en') + '</b>.';
     var h = '<section class="quote" id="quote"><div class="qhi"><b>' + greet + '</b><span>' + sum + '</span></div><figure class="qfig"><blockquote id="qtxt">' + esc(Q[A.qi][0]) + '</blockquote><figcaption id="qwho">' + esc(Q[A.qi][1]) + '</figcaption></figure><button type="button" class="qnext" id="qnext" title="Andere wijsheid" aria-label="Andere wijsheid">↻</button></section>';
     h += '<div class="head"><h1>Vergaderingen</h1><div class="acts"><a class="btn" href="#/weekagenda" title="Je Outlook-agenda van de komende dagen in één keer inlezen">📅 Importeer weekagenda</a><button class="btn" id="imp">Mail importeren…</button><a class="btn pri" href="#/nieuw" id="new">+ Nieuwe vergadering</a></div></div>';
     h += '<div class="dropbar">Sleep een mail of agenda-uitnodiging uit Outlook naar dit venster. Er wordt dan een vergadering aangemaakt, met de stukken als bijlage.</div>';
@@ -3965,11 +4010,11 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     }
     var upcoming = list.filter(function (m) { return !m.date || m.date > tmw; }), past = list.filter(function (m) { return m.date && m.date < t; });
     A.hlists = { up: sorted(upcoming), arch: sorted(past, true) };
-    h += '<section class="card arch upc"><button type="button" class="archbtn" id="upc" aria-expanded="' + (A.showUp ? 'true' : 'false') + '"><span>' + (A.showUp ? '▾' : '▸') + '</span> 📅 Volgende vergaderingen <span class="muted">' + upcoming.length + ' vergadering' + (upcoming.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showUp ? 'verbergen' : 'weergeven') + '</span></button>';
+    h += '<section class="card arch upc"><button type="button" class="archbtn" id="upc" aria-expanded="' + (A.showUp ? 'true' : 'false') + '"><span>' + (A.showUp ? '▾' : '▸') + '</span> Volgende vergaderingen <span class="muted">' + upcoming.length + ' vergadering' + (upcoming.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showUp ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showUp) h += '<div class="upbody">' + tbl(upcoming, ms.length ? (past.length ? 'Geen komende vergaderingen' + (q || f.year ? ' met deze filters' : '') + '. Eerdere vergaderingen staan in het archief.' : 'Geen vergaderingen gevonden met deze filters.') : 'Nog geen vergaderingen. Sleep een mail naar dit venster om te beginnen.');
     if (A.showUp) h += '<p class="note">Klik op een kolomkop om te sorteren.</p></div>';
     h += '</section>';
-    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> 🗄 Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'weergeven') + '</span></button>';
+    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showArch) h += tbl(past, 'Geen eerdere vergaderingen' + (q || f.year ? ' met deze filters' : '') + '.', true);
     h += '</section>';
     setHTML($('#main'), h);
@@ -4620,7 +4665,7 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
     route();
   }
   start().catch(function (e) { setHTML($('#main'), '<div class="card welcome"><h1>Er ging iets mis bij het starten</h1><p>' + esc(e.message || e) + '</p><button class="btn" id="useIdb">In de browser bewaren</button></div>'); $('#useIdb').onclick = function () { useStore(new BrowserStore()); }; });
-  if (W.__VA_TEST) W.__va = { makeLnk: makeLnk, htmlPathWin: htmlPathWin, findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };
+  if (W.__VA_TEST) W.__va = { htmlPathWin: htmlPathWin, findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };
 
 })();
 </script></body></html>

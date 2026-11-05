@@ -333,6 +333,15 @@ tbody tr:hover .pill,.tl li:hover .pill{background:#fff}
 .helpbody code{background:var(--row);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12.5px}
 .helpbody hr{border:0;border-top:1px solid var(--line);margin:18px 0 10px}.helpbody .link{padding:2px 4px}
 @media (prefers-reduced-motion:reduce){.helppanel,.helpbg{transition:none}}
+.helptabs{display:flex;gap:4px;padding:10px 14px 0;border-bottom:1px solid var(--line);background:var(--row)}
+.helptabs button{border:0;background:none;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;color:var(--mute);cursor:pointer;border-radius:6px 6px 0 0;border-bottom:3px solid transparent}
+.helptabs button:hover{color:var(--brand)}.helptabs button.on{color:var(--brand);background:var(--card);border-bottom-color:var(--hemel)}
+.helph{font-size:17px;margin:2px 0 8px}
+.faq{border:1px solid var(--line);border-radius:8px;margin:0 0 8px;background:var(--card)}
+.faq summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--brand);list-style-position:inside}
+.faq[open] summary{border-bottom:1px solid var(--line)}.faq>div{padding:10px 14px 4px}
+.helpfoot{padding:8px 22px;border-top:1px solid var(--line);font-size:12px;color:var(--mute);background:var(--row)}
+.helpbody .tree{max-width:none;font-size:12px}
 </style></head><body>
 <header><a class="logo" href="#/"><img src="__ICON_URI__" alt="" width="28" height="28">MeBabs</a><div id="side" class="topbar"></div><button type="button" class="helpbtn" id="helpBtn" title="Help bij deze pagina (F1)" aria-label="Help bij deze pagina">?</button></header>
 <div class="wrap"><main id="main"></main></div>

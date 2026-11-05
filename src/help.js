@@ -7,6 +7,57 @@
     '<li>Open MeBabs, klik rechtsboven bij de map op <b>wijzig</b> en kies die map <code>mebabs-data</code>.</li></ol>' +
     '<p class="muted">Losse vergadermappen terugkopiëren in <code>Vergaderingen</code> werkt niet: MeBabs werkt vanuit <code>mebabs.json</code>. Zet altijd de hele map terug.</p>';
 
+  var GITHUB = 'https://github.com/oss-aigp/mebabs', GITHUB_DL = 'https://github.com/oss-aigp/mebabs/blob/main/dist/MeBabs.html';
+  /* versienummer staat als opmerking bovenaan het bestand (<!-- MeBabs-versie: x -->) */
+  function mebabsVersion() { for (var n = D.firstChild; n; n = n.nextSibling) { if (n.nodeType === 8) { var m = /MeBabs-versie:\s*([^\s]+)/.exec(n.nodeValue); if (m) return m[1]; } } return ''; }
+  var UPGRADE_HTML = '<ol><li>Maak eerst een back-up: kopieer de hele map <code>mebabs-data</code>.</li>' +
+    '<li>Open <a href="' + GITHUB_DL + '" target="_blank" rel="noopener">MeBabs.html op GitHub</a> en klik rechtsboven op het pijltje <b>Download raw file</b>. Het bestand komt in je map <b>Downloads</b>.</li>' +
+    '<li>Sluit MeBabs (alle tabbladen met MeBabs).</li>' +
+    '<li>Verplaats het gedownloade <code>MeBabs.html</code> naar <code>Documenten\\MeBabs</code> en kies <b>Het bestand in de doelmap vervangen</b>. Heet het bestand in Downloads <code>MeBabs (1).html</code>, geef het dan eerst de naam <code>MeBabs.html</code>.</li>' +
+    '<li>Open MeBabs weer via je snelkoppeling. Je vergaderingen staan er gewoon: die staan in <code>mebabs-data</code>, niet in het HTML-bestand.</li></ol>' +
+    '<p class="muted">Je gebruikt nu versie <b>' + esc(mebabsVersion() || 'onbekend') + '</b>. Welke versie de nieuwste is, zie je op <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a> bij de laatste wijziging.</p>';
+  var SHORTCUT_HTML = '<ol><li>Klik met de rechtermuisknop op een lege plek op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li>' +
+    '<li>Typ of plak bij <i>Typ de locatie van het item</i>: <code>C:\\Windows\\explorer.exe "C:\\Users\\JOUWNAAM\\Documents\\MeBabs\\MeBabs.html"</code>, met het pad naar jouw <code>MeBabs.html</code>. Op de pagina <a href="#/installatie">MeBabs installeren</a> staat de regel met jouw pad en een knop Kopiëren.</li>' +
+    '<li>Klik op <b>Volgende</b>, noem hem <b>MeBabs</b> en klik op <b>Voltooien</b>.</li>' +
+    '<li>Rechtermuisknop › <b>Eigenschappen</b> › <b>Ander pictogram…</b> › <b>Bladeren</b> en kies <code>MeBabs.ico</code> naast <code>MeBabs.html</code>.</li>' +
+    '<li>Sleep de snelkoppeling naar de <b>taakbalk</b>. Dat kan omdat het doel <code>explorer.exe</code> is en niet het HTML-bestand zelf.</li></ol>';
+  var FAQ = [
+    ['Hoe installeer ik MeBabs?', '<ol><li>Download <a href="' + GITHUB_DL + '" target="_blank" rel="noopener">MeBabs.html van GitHub</a> (rechtsboven: <b>Download raw file</b>).</li>' +
+      '<li>Maak in <b>Documenten</b> een map <b>MeBabs</b> en zet <code>MeBabs.html</code> daarin.</li>' +
+      '<li>Dubbelklik op het bestand. Het opent in Edge of Chrome. Werkt het in een andere browser, kies dan met de rechtermuisknop <b>Openen met › Microsoft Edge</b>.</li>' +
+      '<li>Klik op <b>Datamap kiezen</b> en kies de map <b>MeBabs</b>. MeBabs maakt daarin <code>mebabs-data</code> aan en zet het icoon <code>MeBabs.ico</code> ernaast.</li>' +
+      '<li>Maak een snelkoppeling op het bureaublad en in de taakbalk (zie de vraag hieronder).</li></ol>'],
+    ['Hoe maak ik een snelkoppeling op het bureaublad en in de taakbalk?', SHORTCUT_HTML],
+    ['Hoe maak ik een back-up, en hoe zet ik die terug?', BACKUP_HTML],
+    ['Hoe upgrade ik MeBabs naar een nieuwe versie?', UPGRADE_HTML],
+    ['Ik wil MeBabs zelf doorontwikkelen. Hoe doe ik dat?', '<p>De broncode staat openbaar op <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a>.</p><ol>' +
+      '<li>Installeer <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> (versie 18 of nieuwer) en Git.</li>' +
+      '<li>Haal de code op: <code>git clone ' + GITHUB + '.git</code>, of download de ZIP via de groene knop <b>Code</b>.</li>' +
+      '<li>Ga in de map staan en voer <code>npm install</code> uit, daarna <code>npm run build</code>. Dat maakt <code>dist/MeBabs.html</code>.</li>' +
+      '<li>De code staat in <code>src/</code>: <code>app.html</code> (HTML en alle opmaak), <code>app-ui.js</code> (schermen en opslag), <code>mail-parser.js</code> (mails en agenda lezen), <code>convert.js</code> en <code>pptx-render.js</code> (omzetten naar PDF), <code>editor.js</code> (bewerken), <code>notes.js</code>, <code>reports.js</code>, <code>files.js</code> en <code>help.js</code>.</li>' +
+      '<li>Test je wijziging door <code>dist/MeBabs.html</code> in Edge te openen. Verhoog bij een nieuwe versie het versienummer in <code>package.json</code>.</li>' +
+      '<li>Wil je je wijziging teruggeven? Maak een eigen kopie (<b>Fork</b>) op GitHub en stuur een <b>pull request</b>.</li></ol>' +
+      '<p class="muted">In <code>CLAUDE.md</code> staan de werkafspraken, ook handig als je met een AI-assistent werkt. Er staat nog geen licentie in de repository: wil je MeBabs buiten je eigen gebruik verspreiden of aanpassen, overleg dan met de eigenaar.</p>'],
+    ['Hoe zit het met de veiligheid van mijn informatie?', '<ul>' +
+      '<li><b>Alles blijft op je eigen computer.</b> MeBabs is één HTML-bestand dat in je browser draait. Er is geen server en geen account, en MeBabs stuurt geen mails, stukken of aantekeningen naar internet. Alle onderdelen zitten in het bestand zelf, dus MeBabs werkt ook zonder internet.</li>' +
+      '<li><b>Toegang tot één map.</b> MeBabs kan alleen bij de datamap die jij kiest, en pas nadat je browser daar toestemming voor heeft gevraagd. Daarom vraagt de browser bij elke start of MeBabs de map weer mag gebruiken.</li>' +
+      '<li><b>Je gegevens zijn gewone bestanden</b> in <code>mebabs-data</code>, niet versleuteld. Ze zijn net zo goed beveiligd als je andere documenten: via je Windows-account en de beveiliging van je werkplek.</li>' +
+      '<li><b>OneDrive.</b> Wordt je map Documenten met OneDrive gesynchroniseerd, dan komt <code>mebabs-data</code> ook in de OneDrive van je organisatie. Voor gewone werkstukken is dat meestal prima; volg voor vertrouwelijke of gerubriceerde informatie de regels van je organisatie.</li>' +
+      '<li><b>Bewaar je alles in de browser</b>, dan staan de gegevens in je browserprofiel op deze computer. Wis je de browsergegevens, dan ben je ze kwijt: maak dan regelmatig een export.</li>' +
+      '<li><b>Wat wel naar buiten gaat:</b> alleen wat je zelf doet, zoals <b>Deelnemen</b> (opent de Teams-link), een conceptmail die je in Outlook verstuurt, of een link naar GitHub in deze help.</li>' +
+      '<li><b>Let op bij delen:</b> een PDF die je downloadt met aantekeningen, of de export als één PDF, bevat je markeringen en opmerkingen.</li></ul>'],
+    ['Waarom vraagt de browser elke keer om toestemming?', '<p>Dat is een beveiligingsregel van de browser: een webpagina mag pas bij een map op je computer als jij daar in die sessie toestemming voor geeft. Klik op <b>Map openen</b> en daarna op <b>Toestaan</b>.</p>'],
+    ['Kan ik MeBabs op meerdere computers gebruiken?', '<p>Ja, maar niet tegelijk met dezelfde gegevens. Kopieer de hele map <code>mebabs-data</code> naar de andere computer en kies daar die map. Werk niet op twee computers tegelijk in dezelfde map (bijvoorbeeld via OneDrive): dan kunnen wijzigingen elkaar overschrijven.</p>'],
+  ];
+  var ABOUT_HTML = '<p><b>MeBabs</b> is een vergaderapp in één HTML-bestand. Je sleept mails en uitnodigingen uit Outlook erin, en MeBabs maakt er vergaderingen van met alle stukken, die je kunt lezen, markeren, bewerken en exporteren. Alles blijft op je eigen computer.</p>' +
+    '<h3>Zo werkt het</h3><ol><li><b>Vergaderingen maken</b>: sleep een mail of uitnodiging erin, of lees met <b>Importeer weekagenda</b> je Outlook-agenda in. Titel, datum, tijd, locatie, vergaderlink, genodigden en bijlagen worden overgenomen.</li>' +
+    '<li><b>Stukken</b>: Word, Excel, PowerPoint, afbeeldingen en mails worden automatisch omgezet naar PDF. In de viewer kun je zoeken, markeren en opmerkingen maken; bij Bewerken pas je het origineel aan.</li>' +
+    '<li><b>Vergaderen</b>: met <b>Deelnemen</b> open je de online vergadering, met <b>✎ Aantekeningen</b> maak je aantekeningen. Regels die met <code>!</code> beginnen, worden acties.</li>' +
+    '<li><b>Afronden</b>: <b>Exporteer als één PDF</b> maakt één document met agenda, stukken en aantekeningen. Verslagen en acties vind je terug in de tabbladen <b>Verslagen</b> en <b>Actielijst</b>.</li>' +
+    '<li><b>Terugvinden</b>: in <b>Bestanden</b> staan alle stukken, met versies, en kun je ze openen, downloaden en mailen.</li></ol>' +
+    '<h3>Waar staat wat?</h3><pre class="tree">Documenten\\MeBabs\\\n  MeBabs.html      de app\n  MeBabs.ico       het icoon\n  mebabs-data\\     je gegevens\n    Vergaderingen\\  per vergadering de stukken\n    Aantekeningen\\  de verslagen als .txt\n    Actielijst\\     Actielijst.txt\n    mebabs.json     het register</pre>' +
+    '<h3>Tabbladen</h3><ul><li><b>Vergaderingen</b>: vandaag, morgen, volgende vergaderingen en het archief.</li><li><b>Verslagen</b>: alle aantekeningen als verslag, met een Word-achtige editor.</li><li><b>Actielijst</b>: alle acties, met afvinken, snoozen en een begindatum.</li><li><b>Bestanden</b>: een verkenner met alle stukken.</li></ul>' +
+    '<p>De volledige handleiding staat in de <a href="' + GITHUB + '#readme" target="_blank" rel="noopener">README op GitHub</a>.</p>';
   var HELP = {
     home: { t: 'Vergaderingen', h:
       '<p>Het startscherm met je vergaderingen van vandaag en morgen, en de lijsten met volgende en eerdere vergaderingen.</p>' +
@@ -89,9 +140,9 @@
     install: { t: 'Installatie en back-up', h:
       '<h3>Installeren</h3><ol><li>Zet <code>MeBabs.html</code> in <code>Documenten\\MeBabs</code>.</li>' +
       '<li>Open het bestand in Edge of Chrome en klik op <b>Datamap kiezen</b>. Kies de map <b>MeBabs</b>; MeBabs maakt daarin <code>mebabs-data</code> aan en zet <code>MeBabs.ico</code> naast <code>MeBabs.html</code>.</li>' +
-      '<li>Download op de pagina <a href="#/installatie">MeBabs installeren</a> de snelkoppeling, sleep hem naar het bureaublad en van daar naar de taakbalk.</li></ol>' +
+      '<li>Maak een snelkoppeling op het bureaublad en sleep hem naar de taakbalk (zie hieronder).</li></ol>' +
       '<p>Bij elke start vraagt de browser één keer of MeBabs de map weer mag gebruiken: klik op <b>Map openen</b> en <b>Toestaan</b>.</p>' +
-      '<h3>Bijwerken naar een nieuwe versie</h3><p>Vervang <code>MeBabs.html</code> door de nieuwe versie. Je gegevens in <code>mebabs-data</code> blijven staan.</p>' + BACKUP_HTML },
+      '<h3>Snelkoppeling</h3>' + SHORTCUT_HTML + '<h3>Bijwerken naar een nieuwe versie</h3>' + UPGRADE_HTML + BACKUP_HTML },
   };
   function helpTopic() {
     var h = location.hash || '#/';
@@ -104,23 +155,34 @@
     if (h === '#/installatie') return 'install';
     return 'home';
   }
-  function openHelp() {
-    var old = $('#helpPanel'); if (old) { closeHelp(); return; }
-    var k = helpTopic(), t = HELP[k], bg = D.createElement('div'), p = D.createElement('aside');
+  function faqHtml() { return '<p>Klik op een vraag voor het antwoord.</p>' + FAQ.map(function (q) { return '<details class="faq"><summary>' + esc(q[0]) + '</summary><div>' + q[1] + '</div></details>'; }).join(''); }
+  function openHelp(tab) {
+    if ($('#helpPanel')) { closeHelp(); return; }
+    var k = helpTopic(), bg = D.createElement('div'), p = D.createElement('aside');
     bg.className = 'helpbg'; bg.id = 'helpBg'; p.className = 'helppanel'; p.id = 'helpPanel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-labelledby', 'helpT');
-    setHTML(p, '<div class="helphead"><span class="helpq">?</span><h2 id="helpT">Help: ' + esc(t.t) + '</h2><button type="button" class="helpx" id="helpX" title="Sluiten (Esc)" aria-label="Sluiten">✕</button></div>' +
-      '<div class="helpbody">' + t.h + '<hr><p class="muted">Andere onderwerpen: ' + Object.keys(HELP).filter(function (x) { return x !== k; }).map(function (x) { return '<button type="button" class="link" data-help="' + x + '">' + esc(HELP[x].t) + '</button>'; }).join(' · ') + '</p></div>');
+    setHTML(p, '<div class="helphead"><span class="helpq">?</span><h2 id="helpT">Help</h2><button type="button" class="helpx" id="helpX" title="Sluiten (Esc)" aria-label="Sluiten">✕</button></div>' +
+      '<div class="helptabs" role="tablist"><button type="button" role="tab" data-tab="page">' + esc(HELP[k].t) + '</button><button type="button" role="tab" data-tab="faq">Veelgestelde vragen</button><button type="button" role="tab" data-tab="about">Hoe werkt MeBabs</button></div>' +
+      '<div class="helpbody" id="helpBody"></div><div class="helpfoot">MeBabs ' + esc(mebabsVersion()) + ' · <a href="' + GITHUB + '" target="_blank" rel="noopener">GitHub</a></div>');
     D.body.appendChild(bg); D.body.appendChild(p);
     requestAnimationFrame(function () { bg.classList.add('on'); p.classList.add('on'); });
     bg.onclick = closeHelp; $('#helpX').onclick = closeHelp;
-    $$('[data-help]', p).forEach(function (b) { b.onclick = function () { var x = b.dataset.help; setHTML($('#helpT'), 'Help: ' + esc(HELP[x].t)); var body = $('.helpbody', p); setHTML(body, HELP[x].h + '<hr><p class="muted"><button type="button" class="link" id="helpBack">‹ Terug naar ' + esc(t.t) + '</button></p>'); body.scrollTop = 0; $('#helpBack').onclick = function () { closeHelp(); openHelp(); }; bindLinks(); }; });
-    function bindLinks() { $$('.helpbody a[href^="#"]', p).forEach(function (a) { a.addEventListener('click', closeHelp); }); }
-    bindLinks();
+    function show(t, topic) {
+      var body = $('#helpBody'), key = topic || k;
+      $$('[data-tab]', p).forEach(function (b) { var on = b.dataset.tab === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      if (t === 'faq') setHTML(body, faqHtml());
+      else if (t === 'about') setHTML(body, ABOUT_HTML);
+      else setHTML(body, '<h2 class="helph">' + esc(HELP[key].t) + '</h2>' + HELP[key].h + '<hr><p class="muted">Andere onderwerpen: ' + Object.keys(HELP).filter(function (x) { return x !== key; }).map(function (x) { return '<button type="button" class="link" data-help="' + x + '">' + esc(HELP[x].t) + '</button>'; }).join(' · ') + '</p>');
+      body.scrollTop = 0;
+      $$('[data-help]', body).forEach(function (b) { b.onclick = function () { show('page', b.dataset.help); }; });
+      $$('a[href^="#"]', body).forEach(function (a) { a.addEventListener('click', closeHelp); });
+    }
+    $$('[data-tab]', p).forEach(function (b) { b.onclick = function () { show(b.dataset.tab); }; });
+    show(tab || 'page');
     $('#helpX').focus();
   }
   function closeHelp() { var p = $('#helpPanel'), bg = $('#helpBg'); if (p) p.remove(); if (bg) bg.remove(); }
   function initHelp() {
-    var b = $('#helpBtn'); if (b) b.onclick = openHelp;
+    var b = $('#helpBtn'); if (b) b.onclick = function () { openHelp(); };
     D.addEventListener('keydown', function (e) {
       if (e.key === 'F1') { e.preventDefault(); openHelp(); }
       else if (e.key === 'Escape' && $('#helpPanel')) { e.stopPropagation(); closeHelp(); }

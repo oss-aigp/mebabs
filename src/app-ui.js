@@ -487,7 +487,7 @@
       '<p>Sleep mails en uitnodigingen uit Outlook naar MeBabs. Er wordt dan automatisch een vergadering aangemaakt, met de titel, datum, tijd, locatie en alle stukken.</p>' +
       '<ol class="steps"><li><b>Geef MeBabs een vaste plek</b>: zet <code>MeBabs.html</code> in <b>Documenten\\MeBabs</b>' + (here ? ' <span class="muted">(nu: ' + esc(here) + ')</span>' : '') + '.</li>' +
       '<li><b>Kies de datamap</b>: klik hieronder en kies de map <b>MeBabs</b> waar dit bestand in staat. MeBabs maakt daarin de map <b>mebabs-data</b> aan en zet er het icoon naast.</li>' +
-      '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk. Dat wijst MeBabs je na het kiezen van de map.</li></ol>' +
+      '<li><b>Maak een snelkoppeling</b> op je bureaublad en in de taakbalk, met <code>C:\\Windows\\explorer.exe</code> ervoor. Hoe dat stap voor stap gaat, laat MeBabs je zien na het kiezen van de map.</li></ol>' +
       (fsOk ? '<p><button class="btn pri" id="pickDir">📁 Datamap kiezen…</button> <a class="btn" href="#/installatie">Uitgebreide uitleg</a></p>' : '<p class="note">Deze browser kan geen map op je computer gebruiken. Open MeBabs in Microsoft Edge of Google Chrome.</p>') +
       '<p class="note"><b>Back-up:</b> kopieer af en toe de hele map <b>mebabs-data</b>, mét het bestand <b>mebabs.json</b> erin, naar bijvoorbeeld OneDrive of een netwerkschijf. Terugzetten doe je door die map weer als datamap te kiezen. Meer uitleg vind je onder de knop <b>?</b> rechtsboven.</p>' +
       '<p class="note">Mag je geen map kiezen? <button class="link" id="useIdb">Bewaar alles in de browser</button> (alleen op deze computer, zonder bestanden).</p>' +
@@ -515,32 +515,8 @@
     if (!exists) { var fh = await dir.getFileHandle('MeBabs.ico', { create: true }), w = await fh.createWritable(); await w.write(icoBlob()); await w.close(); }
     A.iconPlaced = true; return true;
   }
-  /* Windows-snelkoppeling (MS-SHLLINK): doel explorer.exe met het pad van MeBabs.html als argument. Zo kan hij ook aan de taakbalk. */
-  function makeLnk(args, workDir, icon, desc) {
-    var o = [];
-    function b(a) { for (var i = 0; i < a.length; i++) o.push(a[i] & 255); }
-    function u16(v) { o.push(v & 255, (v >> 8) & 255); }
-    function u32(v) { o.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); }
-    function ansi(t, len) { var a = []; for (var i = 0; i < t.length; i++) a.push(t.charCodeAt(i) < 256 ? t.charCodeAt(i) : 63); a.push(0); while (len && a.length < len) a.push(0); return a; }
-    function uni(t, len) { var a = []; for (var i = 0; i < t.length; i++) { var c = t.charCodeAt(i); a.push(c & 255, c >> 8); } a.push(0, 0); while (a.length < len) a.push(0); return a; }
-    function str(t) { u16(t.length); for (var i = 0; i < t.length; i++) u16(t.charCodeAt(i)); }
-    var target = 'C:\\Windows\\explorer.exe', expTarget = '%windir%\\explorer.exe';
-    /* ShellLinkHeader */
-    u32(0x4C); b([0x01, 0x14, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46]);
-    u32(0x02 | 0x04 | 0x10 | 0x20 | 0x40 | 0x80 | 0x200); /* LinkInfo, naam, werkmap, argumenten, pictogram, unicode, omgevingsvariabele */
-    u32(0x20); for (var i = 0; i < 24; i++) o.push(0); u32(0); u32(0); u32(1); u16(0); u16(0); u32(0); u32(0);
-    /* LinkInfo met het lokale pad van explorer.exe */
-    var vol = [17, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0], base = ansi(target), hdr = 0x1C, volOff = hdr, baseOff = volOff + vol.length, sufOff = baseOff + base.length;
-    u32(sufOff + 1); u32(hdr); u32(1); u32(volOff); u32(baseOff); u32(0); u32(sufOff); b(vol); b(base); o.push(0);
-    /* StringData */
-    str(desc); str(workDir); str(args); str(icon);
-    /* ExtraData: %windir%\explorer.exe, zodat het ook werkt als Windows niet op C: staat */
-    u32(0x314); u32(0xA0000001); b(ansi(expTarget, 260)); b(uni(expTarget, 520));
-    u32(0);
-    return new Uint8Array(o);
-  }
   function renderInstall() {
-    var here = htmlPathWin(), dir = htmlDirWin(), inDocs = here && /\\(Documents|Documenten)\\MeBabs\\[^\\]+$/i.test(here), cmd = here ? 'explorer.exe "' + here + '"' : '';
+    var here = htmlPathWin(), dir = htmlDirWin(), inDocs = here && /\\(Documents|Documenten)\\MeBabs\\[^\\]+$/i.test(here), cmd = 'C:\\Windows\\explorer.exe "' + (here || 'C:\\Users\\JOUWNAAM\\Documents\\MeBabs\\MeBabs.html') + '"';
     var h = '<div class="crumb"><a href="#/">Vergaderingen</a> › Installatie</div><div class="head"><h1>MeBabs installeren</h1></div>';
     h += '<section class="card wk"><h2>1. Een vaste plek voor MeBabs</h2>' +
       '<p>Zet <code>MeBabs.html</code> in een eigen map <b>MeBabs</b> in <b>Documenten</b>. Op die plek vervang je het bestand later ook door een nieuwe versie.</p>' +
@@ -551,23 +527,20 @@
       '<pre class="tree">Documenten\\MeBabs\\\n  MeBabs.html\n  MeBabs.ico\n  mebabs-data\\\n    Vergaderingen\\\n    Aantekeningen\\\n    Actielijst\\\n    mebabs.json</pre>' +
       '<p><button class="btn' + (A.store && A.store.kind === 'map' ? '' : ' pri') + '" id="insPick">📁 Datamap kiezen…</button></p></section>';
     h += '<section class="card wk"><h2>3. Snelkoppeling op het bureaublad en in de taakbalk</h2>' +
-      '<p>De snelkoppeling start <code>explorer.exe</code> met MeBabs als bestand. Daardoor kun je hem ook aan de taakbalk vastmaken.</p><ol>' +
-      '<li>Klik op <b>Snelkoppeling downloaden</b>. Vraagt Edge of je het bestand wilt bewaren, kies dan <b>Behouden</b>.</li>' +
-      '<li>Open je map <b>Downloads</b> en sleep <b>MeBabs</b> naar het bureaublad.</li>' +
+      '<p>De snelkoppeling start <code>explorer.exe</code> met MeBabs als bestand. Omdat het doel een programma is, kun je hem daarna ook naar de taakbalk slepen.</p><ol>' +
+      '<li>Klik met de rechtermuisknop op een lege plek op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li>' +
+      '<li>Plak bij <i>Typ de locatie van het item</i> deze regel' + (here ? ' (klik op <b>Kopiëren</b>)' : ' en vervang het pad door de plek van jouw <code>MeBabs.html</code>') + ':</li></ol>' +
+      '<div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3">' +
+      '<li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li>' +
+      '<li>Klik met de rechtermuisknop op de nieuwe snelkoppeling en kies <b>Eigenschappen</b>. Klik op <b>Ander pictogram…</b> › <b>Bladeren</b>, kies <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code> en klik twee keer op <b>OK</b>.</li>' +
       '<li>Sleep de snelkoppeling van het bureaublad naar de <b>taakbalk</b>. Of klik er met de rechtermuisknop op en kies <b>Aan taakbalk vastmaken</b> (in Windows 11 eerst <b>Meer opties weergeven</b>).</li></ol>' +
-      '<p><button class="btn pri" id="insLnk"' + (here ? '' : ' disabled') + '>⤓ Snelkoppeling downloaden</button> <button class="btn" id="insIco">⤓ Icoon downloaden</button></p>' +
-      '<p class="muted">Het icoon staat in de snelkoppeling als <code>' + esc((dir || 'Documenten\\MeBabs') + '\\MeBabs.ico') + '</code>. ' + (A.iconPlaced ? 'Dat bestand heeft MeBabs al neergezet. ' : 'Dat bestand zet MeBabs neer als je in stap 2 de map MeBabs kiest; anders download je het hier en zet je het naast MeBabs.html. ') + 'Ziet de snelkoppeling er niet goed uit, kies dan in de eigenschappen <b>Ander pictogram…</b> en blader naar <code>MeBabs.ico</code>.</p>' +
-      (here ? '<details><summary>Liever zelf een snelkoppeling maken?</summary><ol><li>Klik met de rechtermuisknop op het bureaublad en kies <b>Nieuw</b> › <b>Snelkoppeling</b>.</li><li>Plak bij <i>Typ de locatie van het item</i>:</li></ol><div class="cmdbox"><code id="insCmd">' + esc(cmd) + '</code><button class="btn sm" id="insCopy">Kopiëren</button></div><ol start="3"><li>Klik op <b>Volgende</b>, typ als naam <b>MeBabs</b> en klik op <b>Voltooien</b>.</li><li>Klik met de rechtermuisknop op de snelkoppeling › <b>Eigenschappen</b> › <b>Ander pictogram…</b> en kies <code>MeBabs.ico</code>.</li></ol></details>' : '') + '</section>';
-    h += '<section class="card wk"><h2>4. Back-up</h2>' + BACKUP_HTML.replace(/<h3>/g, '<h3 class="sub">') + '</section>';
+      '<p class="muted">' + (A.iconPlaced ? 'Het icoon <code>MeBabs.ico</code> heeft MeBabs al naast <code>MeBabs.html</code> gezet. ' : 'Het icoon <code>MeBabs.ico</code> zet MeBabs naast <code>MeBabs.html</code> als je in stap 2 de map MeBabs kiest. Staat het er niet? ') + '<button type="button" class="link" id="insIco">Icoon downloaden</button> en zet het naast <code>MeBabs.html</code>.</p></section>';
+    h += '<section class="card wk"><h2>4. Bijwerken naar een nieuwe versie</h2>' + UPGRADE_HTML + '</section>';
+    h += '<section class="card wk"><h2>5. Back-up</h2>' + BACKUP_HTML.replace(/<h3>/g, '<h3 class="sub">') + '</section>';
     h += '<p><a class="btn" href="#/">Klaar, naar de vergaderingen</a></p>';
     setHTML($('#main'), h);
     $('#insPick').onclick = chooseFolder;
     $('#insIco').onclick = function () { dl(icoBlob(), 'MeBabs.ico'); };
-    var l = $('#insLnk'); if (l) l.onclick = function () {
-      if (!here) return;
-      dl(new Blob([makeLnk('"' + here + '"', dir, dir + '\\MeBabs.ico', 'MeBabs: vergaderingen, stukken en aantekeningen')], { type: 'application/octet-stream' }), 'MeBabs.lnk');
-      toast('De snelkoppeling staat in Downloads. Sleep hem naar het bureaublad en daarna naar de taakbalk.', 'ok');
-    };
     var c = $('#insCopy'); if (c) c.onclick = async function () { var ok = false; try { await navigator.clipboard.writeText(cmd); ok = true; } catch (e) {} toast(ok ? 'Gekopieerd. Plak het met Ctrl+V.' : 'Kopiëren lukte niet. Selecteer de tekst en druk op Ctrl+C.', ok ? 'ok' : 'warn'); };
   }
   function row(m, cols) {
@@ -610,7 +583,8 @@
     function qPick() { if (!A.qbag || !A.qbag.length) { A.qbag = Q.map(function (q, k) { return k; }).filter(function (k) { return k !== A.qi; }); } return A.qbag.splice(Math.floor(Math.random() * A.qbag.length), 1)[0]; }
     if (A.qi == null || A.qi >= Q.length) A.qi = qPick(); /* elke keer dat MeBabs opent een willekeurige wijsheid */
     var hr = new Date().getHours(), greet = hr < 6 ? 'Goedenacht' : hr < 12 ? 'Goedemorgen' : hr < 18 ? 'Goedemiddag' : 'Goedenavond';
-    var sum = !today.length ? 'Je hebt vandaag geen vergaderingen.' : 'Je hebt vandaag <b>' + today.length + ' vergadering' + (today.length === 1 ? '' : 'en') + '</b>.';
+    var nowHm = pad(new Date().getHours()) + ':' + pad(new Date().getMinutes()), over = today.length && today.every(function (m) { return (m.end || m.start || '00:00') <= nowHm; });
+    var sum = !today.length ? 'Je hebt vandaag geen vergaderingen.' : (over ? 'Je had' : 'Je hebt') + ' vandaag <b>' + today.length + ' vergadering' + (today.length === 1 ? '' : 'en') + '</b>.';
     var h = '<section class="quote" id="quote"><div class="qhi"><b>' + greet + '</b><span>' + sum + '</span></div><figure class="qfig"><blockquote id="qtxt">' + esc(Q[A.qi][0]) + '</blockquote><figcaption id="qwho">' + esc(Q[A.qi][1]) + '</figcaption></figure><button type="button" class="qnext" id="qnext" title="Andere wijsheid" aria-label="Andere wijsheid">↻</button></section>';
     h += '<div class="head"><h1>Vergaderingen</h1><div class="acts"><a class="btn" href="#/weekagenda" title="Je Outlook-agenda van de komende dagen in één keer inlezen">📅 Importeer weekagenda</a><button class="btn" id="imp">Mail importeren…</button><a class="btn pri" href="#/nieuw" id="new">+ Nieuwe vergadering</a></div></div>';
     h += '<div class="dropbar">Sleep een mail of agenda-uitnodiging uit Outlook naar dit venster. Er wordt dan een vergadering aangemaakt, met de stukken als bijlage.</div>';
@@ -641,11 +615,11 @@
     }
     var upcoming = list.filter(function (m) { return !m.date || m.date > tmw; }), past = list.filter(function (m) { return m.date && m.date < t; });
     A.hlists = { up: sorted(upcoming), arch: sorted(past, true) };
-    h += '<section class="card arch upc"><button type="button" class="archbtn" id="upc" aria-expanded="' + (A.showUp ? 'true' : 'false') + '"><span>' + (A.showUp ? '▾' : '▸') + '</span> 📅 Volgende vergaderingen <span class="muted">' + upcoming.length + ' vergadering' + (upcoming.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showUp ? 'verbergen' : 'weergeven') + '</span></button>';
+    h += '<section class="card arch upc"><button type="button" class="archbtn" id="upc" aria-expanded="' + (A.showUp ? 'true' : 'false') + '"><span>' + (A.showUp ? '▾' : '▸') + '</span> Volgende vergaderingen <span class="muted">' + upcoming.length + ' vergadering' + (upcoming.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showUp ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showUp) h += '<div class="upbody">' + tbl(upcoming, ms.length ? (past.length ? 'Geen komende vergaderingen' + (q || f.year ? ' met deze filters' : '') + '. Eerdere vergaderingen staan in het archief.' : 'Geen vergaderingen gevonden met deze filters.') : 'Nog geen vergaderingen. Sleep een mail naar dit venster om te beginnen.');
     if (A.showUp) h += '<p class="note">Klik op een kolomkop om te sorteren.</p></div>';
     h += '</section>';
-    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> 🗄 Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'weergeven') + '</span></button>';
+    h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'weergeven') + '</span></button>';
     if (A.showArch) h += tbl(past, 'Geen eerdere vergaderingen' + (q || f.year ? ' met deze filters' : '') + '.', true);
     h += '</section>';
     setHTML($('#main'), h);
@@ -1296,4 +1270,4 @@
     route();
   }
   start().catch(function (e) { setHTML($('#main'), '<div class="card welcome"><h1>Er ging iets mis bij het starten</h1><p>' + esc(e.message || e) + '</p><button class="btn" id="useIdb">In de browser bewaren</button></div>'); $('#useIdb').onclick = function () { useStore(new BrowserStore()); }; });
-  if (W.__VA_TEST) W.__va = { makeLnk: makeLnk, htmlPathWin: htmlPathWin, findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };
+  if (W.__VA_TEST) W.__va = { htmlPathWin: htmlPathWin, findBase: findBase, baseCandidates: baseCandidates, detectBase: detectBase, kvSet: kvSet, findLink: findLink, convertToPdf: convertToPdf, mergeMeeting: mergeMeeting, A: A, useStore: useStore, FolderStore: FolderStore, BrowserStore: BrowserStore, handleDrop: handleDrop };

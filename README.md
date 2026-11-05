@@ -106,21 +106,18 @@ Kies je een map waarin al gegevens van MeBabs staan (bijvoorbeeld je oude datama
 
 ### Stap 5. Snelkoppeling op het bureaublad en in de taakbalk
 
-Na het kiezen van de datamap opent MeBabs de pagina **MeBabs installeren** (later terug te vinden via de helpknop **?** rechtsboven, onderwerp *Installatie en back-up*).
+Na het kiezen van de datamap opent MeBabs de pagina **MeBabs installeren**, met deze stappen en jouw eigen pad. Later vind je alles terug onder de helpknop **?** rechtsboven.
 
-1. Klik op **⤓ Snelkoppeling downloaden**. Vraagt Edge of je het bestand wilt bewaren, kies dan **Behouden**.
-2. Open de map **Downloads** en sleep **MeBabs** naar het bureaublad.
-3. Sleep de snelkoppeling naar de **taakbalk**, of klik er met de rechtermuisknop op en kies **Aan taakbalk vastmaken** (in Windows 11 eerst **Meer opties weergeven**).
+1. Klik met de rechtermuisknop op een lege plek op het bureaublad en kies **Nieuw** › **Snelkoppeling**.
+2. Plak bij *Typ de locatie van het item* deze regel, met het pad naar jouw `MeBabs.html` (de installatiepagina heeft een knop **Kopiëren**):
+   ```
+   C:\Windows\explorer.exe "C:\Users\JOUWNAAM\Documents\MeBabs\MeBabs.html"
+   ```
+3. Klik op **Volgende**, noem hem **MeBabs** en klik op **Voltooien**.
+4. Rechtermuisknop › **Eigenschappen** › **Ander pictogram…** › **Bladeren** en kies `MeBabs.ico` naast `MeBabs.html`.
+5. Sleep de snelkoppeling naar de **taakbalk**, of kies met de rechtermuisknop **Aan taakbalk vastmaken** (in Windows 11 eerst **Meer opties weergeven**).
 
-De snelkoppeling start `explorer.exe` met het pad van `MeBabs.html` als argument, bijvoorbeeld:
-
-```
-C:\Windows\explorer.exe "C:\Users\JOUWNAAM\Documents\MeBabs\MeBabs.html"
-```
-
-Doordat het doel een programma is (`explorer.exe`) en niet het HTML-bestand zelf, kun je de snelkoppeling aan de taakbalk vastmaken. Explorer opent MeBabs dan in je standaardbrowser. Het icoon is `MeBabs.ico` naast `MeBabs.html`.
-
-Liever zelf maken? Klik met de rechtermuisknop op het bureaublad › **Nieuw** › **Snelkoppeling**, plak de regel hierboven met jouw pad (de installatiepagina toont hem met een knop **Kopiëren**), noem hem **MeBabs** en kies via **Eigenschappen** › **Ander pictogram…** het bestand `MeBabs.ico`.
+Doordat het doel een programma is (`explorer.exe`) en niet het HTML-bestand zelf, kun je de snelkoppeling aan de taakbalk vastmaken. Explorer opent MeBabs dan in je standaardbrowser.
 
 <p align="center"><img src="docs/iconen.png" width="640" alt="De vier icoonontwerpen"></p>
 
@@ -128,7 +125,7 @@ Liever zelf maken? Klik met de rechtermuisknop op het bureaublad › **Nieuw** �
 
 ## Dagelijks gebruik
 
-> Op elke pagina staat rechtsboven een knop **?** (of druk op **F1**). Die opent uitgebreide uitleg over de pagina waar je bent.
+> Op elke pagina staat rechtsboven een knop **?** (of druk op **F1**). Die opent uitleg over de pagina waar je bent, **veelgestelde vragen** (installeren, snelkoppeling, back-up, upgraden, doorontwikkelen, veiligheid) en een algemene uitleg over hoe MeBabs werkt.
 
 **Een vergadering aanmaken**
 - Sleep een mail of uitnodiging uit Outlook naar het MeBabs-venster. Controleer de gegevens en klik op **Opslaan**.
@@ -215,9 +212,13 @@ Je kunt bestanden in deze mappen gewoon openen en kopiëren. Hernoem of verwijde
 
 ## Bijwerken naar een nieuwe versie
 
-1. Download de nieuwe `dist/MeBabs.html`.
-2. Vervang je oude `MeBabs.html` door het nieuwe bestand, met dezelfde naam op dezelfde plek.
-3. Open MeBabs en kies dezelfde datamap. Al je vergaderingen staan er weer.
+1. Maak eerst een back-up (zie hieronder).
+2. Open [MeBabs.html op GitHub](https://github.com/oss-aigp/mebabs/blob/main/dist/MeBabs.html) en klik rechtsboven op het pijltje **Download raw file**. Het bestand komt in **Downloads**.
+3. Sluit MeBabs (alle tabbladen met MeBabs).
+4. Verplaats het gedownloade `MeBabs.html` naar `Documenten\MeBabs` en kies **Het bestand in de doelmap vervangen**. Heet het in Downloads `MeBabs (1).html`, geef het dan eerst de naam `MeBabs.html`.
+5. Open MeBabs via je snelkoppeling. Al je vergaderingen staan er weer.
+
+Welke versie je gebruikt, zie je onderaan het helppaneel (knop **?**).
 
 Je gegevens staan in de datamap, niet in het HTML-bestand. Vervangen is dus veilig.
 
@@ -258,7 +259,7 @@ Je gegevens staan in de datamap, niet in het HTML-bestand. Vervangen is dus veil
 **Vereisten:** [Node.js](https://nodejs.org/) 18 of nieuwer.
 
 ```bash
-git clone https://github.com/<account>/mebabs.git
+git clone https://github.com/oss-aigp/mebabs.git
 cd mebabs
 npm install
 npm run build        # maakt dist/MeBabs.html
