@@ -622,7 +622,9 @@
       h += dayList(today);
     } else h += '<p class="muted">Geen vergaderingen vandaag.' + (next ? ' De volgende is op <a href="#/v/' + esc(next.id) + '">' + esc(fmtLong(next.date)) + ': ' + esc(next.title) + '</a>.' : '') + '</p>';
     h += '</section>';
-    h += '<section class="card today tomorrow"><h2>Morgen <span class="muted">' + esc(fmtLong(tmw)) + '</span></h2>' + (tomorrow.length ? dayList(tomorrow) : '<p class="muted">Geen vergaderingen morgen.</p>') + '</section>';
+    if (A.showTomorrow == null) A.showTomorrow = true; /* standaard open */
+    h += '<section class="card today tomorrow arch"><button type="button" class="archbtn daybtn" id="tmr" aria-expanded="' + (A.showTomorrow ? 'true' : 'false') + '"><span>' + (A.showTomorrow ? '▾' : '▸') + '</span> Morgen <span class="muted">' + esc(fmtLong(tmw)) + ' · ' + (tomorrow.length ? tomorrow.length + ' vergadering' + (tomorrow.length === 1 ? '' : 'en') : 'geen vergaderingen') + '</span><span class="sp"></span><span class="link">' + (A.showTomorrow ? 'verbergen' : 'weergeven') + '</span></button>' +
+      (A.showTomorrow ? (tomorrow.length ? dayList(tomorrow) : '<p class="muted">Geen vergaderingen morgen.</p>') : '') + '</section>';
     var showF = A.showUp || A.showArch || q || f.year;
     if (showF) h += '<section class="card fcard"><div class="filters"><input id="q" type="search" placeholder="Zoeken op titel, locatie, namen of aantekeningen…" value="' + esc(f.q) + '">' +
       '<select id="fYear"><option value="">Alle jaren</option>' + Object.keys(years).sort().reverse().map(function (y) { return '<option' + (f.year === y ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div></section>';
@@ -651,6 +653,7 @@
     $('#arch').onclick = function () { keepScroll(function () { A.showArch = !A.showArch; }); };
     $('#upc').onclick = function () { keepScroll(function () { A.showUp = !A.showUp; }); };
     $('#tdy').onclick = function () { keepScroll(function () { A.showToday = !A.showToday; }); };
+    $('#tmr').onclick = function () { keepScroll(function () { A.showTomorrow = !A.showTomorrow; }); };
     $('#imp').onclick = function () { $('#pickMail').click(); };
     var qn = $('#qnext'); if (qn) qn.onclick = function () { A.qi = qPick(); var f = $('#quote'); f.classList.remove('in'); void f.offsetWidth; $('#qtxt').textContent = Q[A.qi][0]; $('#qwho').textContent = Q[A.qi][1]; f.classList.add('in'); };
     bindFolders($('#main'));
