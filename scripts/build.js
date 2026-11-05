@@ -19,7 +19,10 @@ function bundleIife(entry, globalName) {
 }
 
 const app = "(function(){'use strict';var W=window,D=document;\n" +
-  ['mail-parser.js', 'convert.js', 'editor.js', 'notes.js', 'reports.js', 'files.js', 'app-ui.js'].map(src).join('\n') + '\n})();';
+  ['mail-parser.js', 'convert.js', 'pptx-render.js', 'editor.js', 'notes.js', 'reports.js', 'files.js', 'app-ui.js'].map(src).join('\n') + '\n})();'
+// De Outlook-macro voor de weekagenda staat in outlook/; die wordt in de app gezet zodat gebruikers hem kunnen kopiëren.
+const macro = fs.readFileSync(path.join(root, 'outlook', 'MeBabs-weekagenda.bas'), 'utf8').replace(/\r?\n/g, '\r\n');
+const appWithMacro = app.replace('__OUTLOOK_MACRO__', () => JSON.stringify(macro));
 
 const libs = [mod('pdf-lib/dist/pdf-lib.min.js'), mod('jszip/dist/jszip.min.js')].map((f) => fs.readFileSync(f, 'utf8')).join('\n;\n');
 const pdfjs = bundleIife(mod('pdfjs-dist/build/pdf.worker.min.mjs'), 'pdfjsWorker') + '\n;\n' + bundleIife(mod('pdfjs-dist/build/pdf.min.mjs'), 'pdfjsLib');
@@ -29,7 +32,7 @@ const html = src('app.html')
   .replace(/__ICON_URI__/g, () => icon)
   .replace('__LIBS__', () => noScriptClose(libs))
   .replace('__PDFJS__', () => noScriptClose(pdfjs))
-  .replace('__SCRIPT__', () => noScriptClose(app));
+  .replace('__SCRIPT__', () => noScriptClose(appWithMacro));
 
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 const version = require(path.join(root, 'package.json')).version;

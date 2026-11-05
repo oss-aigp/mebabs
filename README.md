@@ -33,9 +33,9 @@ Alles blijft op je eigen computer. Er is geen server, geen installatie en geen i
 
 | | |
 |---|---|
-| **Mail → vergadering** | Sleep een `.msg` (Outlook) of `.eml` in het venster. MeBabs haalt de titel, datum, tijd, locatie en de **vergaderlink** (Teams, Zoom, Webex en Google Meet, ook als de link in Safe Links verpakt is) eruit en zet de bijlagen als stukken bij de vergadering. |
+| **Mail → vergadering** | Sleep een `.msg` (Outlook) of `.eml` in het venster. MeBabs haalt de titel, datum, tijd, locatie en de **vergaderlink** (Teams, Zoom, Webex en Google Meet, ook als de link in Safe Links verpakt is) eruit en zet de bijlagen als stukken bij de vergadering. Bij een **terugkerende afspraak** krijgt de vergadering de datum en tijd van de eerstvolgende keer, met overgeslagen en verplaatste keren meegerekend. |
 | **Overzicht** | Een blok **Vandaag** met een knop *Deelnemen* en een lijst met komende vergaderingen die je kunt sorteren. Vergaderingen die geweest zijn, staan onder een **Archief** dat je openklapt. |
-| **Stukken als PDF** | Word, Excel, PowerPoint, afbeeldingen, tekst en mails worden automatisch omgezet naar PDF. |
+| **Stukken als PDF** | Word, Excel, PowerPoint, afbeeldingen, tekst en mails worden automatisch omgezet naar PDF. PowerPoint-dia's worden getrouw weergegeven: thema en diamaster, achtergronden, vormen, afbeeldingen, tabellen, grafieken en SmartArt. Zoeken in de PDF werkt ook voor dia's. |
 | **Viewer** | Je kunt zoeken in de PDF (Ctrl+F), tekst selecteren en kopiëren, **markeren** in geel of groen, en **opmerkingen** maken. Opmerkingen staan in de rechtermarge, met een pijltje naar het woord, in 9 pt. Ongedaan maken en Opnieuw werken tot 20 stappen. |
 | **Bewerken** | Een bewerkomgeving voor Word (stijlen, vet, cursief, onderstrepen, uitlijnen), Excel (raster, formulebalk, formules) en PowerPoint (dia's met miniaturen). Het originele bestand blijft netjes en opent gewoon in Office. Ongedaan maken en Opnieuw werken tot 20 stappen. |
 | **Exporteren** | De hele vergadering wordt één PDF: een agendapagina, daarna alle stukken met paginanummers, bladwijzers en je aantekeningen. |
@@ -124,8 +124,23 @@ Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adres
 - Lukt slepen niet (soms in de nieuwe Outlook)? Sleep de mail dan eerst naar je bureaublad en vandaar naar MeBabs. Of gebruik **Mail importeren…**.
 - Sleep je meerdere mails tegelijk, dan maakt MeBabs ze allemaal in één keer aan.
 
+**Weekagenda importeren**
+- Klik op **📅 Importeer weekagenda** bij Vergaderingen. Daar staat ook de uitleg.
+- Sla in Outlook je agenda op als `.ics`: ga naar **Agenda**, kies **Bestand › Agenda opslaan in bestand › Meer opties**, kies een datumbereik (bijvoorbeeld *Volgende 7 dagen*) en **Volledige details**.
+- Kies dat bestand in MeBabs, of sleep het erin. Je ziet eerst een lijst van alle afspraken. **Vink uit wat je niet wilt** en klik op **Importeer geselecteerde**. Blokken, reistijd, uitloop en korte afspraken (tot 20 minuten) die direct naast een andere vergadering liggen, worden niet geïmporteerd. Met **⚙ Niet importeren…** pas je de trefwoorden en de minuten aan en zie je welke titels je eerder hebt uitgevinkt. Afspraken waarvan geen titel te vinden is, worden niet geïmporteerd. Wat je uitvinkt, staat de volgende keer ook uit.
+- Elke aangevinkte afspraak wordt een vergadering, met datum, tijd, locatie, vergaderlink en genodigden (de organisator vooraan).
+- **Bijlagen** van een afspraak worden stukken. Mails die als bijlage in de afspraak zitten (`.msg` of `.eml`), worden omgezet naar PDF. Vink daarvoor in Outlook bij **Meer opties** onder **Geavanceerd** ook **Bijlagen bij agenda-items opnemen** aan.
+- Je kunt elke week opnieuw importeren. Bestaande vergaderingen worden bijgewerkt, ook als je ze eerder via een uitnodiging hebt aangemaakt. Stukken en aantekeningen blijven staan.
+- Hele-dag-afspraken, geannuleerde afspraken en afspraken die al geweest zijn, worden overgeslagen. Een afspraak die je in Outlook verwijdert, blijft in MeBabs staan.
+- **Sneltoets zonder macro:** voeg via **Bestand › Opties › Werkbalk Snelle toegang** de opdracht **Opslaan als agenda** toe (kies *Alle opdrachten*). In de agenda opent **Alt + het cijfer van die knop** dan meteen het venster om de agenda op te slaan.
+- **Sneltoets met macro (optioneel):** de macro in [`outlook/MeBabs-weekagenda.bas`](outlook/MeBabs-weekagenda.bas) slaat met één klik de komende 7 dagen op in je map Downloads. Op de importpagina staat hoe je hem instelt, met een knop om de code te kopiëren. Dit werkt alleen in de klassieke Outlook voor Windows en alleen als je organisatie macro's toestaat.
+
 **Genodigden**
 - Vul de namen in, gescheiden door komma's. De **eerste naam is de voorzitter**.
+
+**Vergaderingen verwijderen**
+- Open een vergadering en klik op **Verwijder**, of vink in de lijst bij Vergaderingen meerdere vergaderingen aan en klik op **🗑 Verwijderen** in de balk die onderaan verschijnt.
+- Bij verwijderen uit de lijst wordt alles gewist wat bij de vergadering hoort: de map met stukken, de originele mail, gewijzigde versies, de aantekeningen en de acties.
 
 **Stukken**
 - Sleep documenten op een geopende vergadering.
@@ -149,7 +164,7 @@ Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adres
 **Bewerken** (tabblad boven de viewer)
 - Word: stijlen, **B** *I* U, opsomming en uitlijnen.
 - Excel: typ in een cel. Met Enter, Tab en de pijltjes beweeg je, met F2 pas je een cel aan, met Delete wis je hem, en met `=` begin je een formule.
-- PowerPoint: klik in een tekstvak op de dia.
+- PowerPoint: de dia's zien er hetzelfde uit als in de PDF. Klik in een tekstvak op de dia om de tekst aan te passen.
 - Opslaan doe je met **💾 Opslaan** of **Ctrl+S**. De eerste keer bewaart MeBabs een kopie `(oorspronkelijk)` en daarna wordt de PDF bijgewerkt.
 
 **Aantekeningen en acties**
@@ -177,7 +192,9 @@ Wil je MeBabs als een gewoon programma in een eigen venster openen, zonder adres
 | `Actielijst\Actielijst.txt` | Alle acties, ingedeeld in open, gesnoozed en afgerond. |
 | `mebabs.json` | Het register: vergaderingen, aantekeningen, markeringen en acties. **Niet met de hand aanpassen.** |
 
-Verwijder je een vergadering in MeBabs, dan wordt de hele map in `Vergaderingen\` gewist: de stukken, de originele mail en alle gewijzigde versies. Je aantekeningen in `Aantekeningen\` blijven staan.
+Elke vergadering heeft een eigen map in `Vergaderingen\`, ook als er nog geen stukken in zitten (bijvoorbeeld na het importeren van je weekagenda).
+
+Verwijder je een vergadering in MeBabs, dan wordt de hele map in `Vergaderingen\` gewist: de stukken, de originele mail en alle gewijzigde versies. Je aantekeningen in `Aantekeningen\` blijven staan. Verwijder je vergaderingen via de lijst (aanvinken en **Verwijderen**), dan worden ook de aantekeningen gewist.
 
 Je kunt bestanden in deze mappen gewoon openen en kopiëren. Hernoem of verwijder bestanden in `Vergaderingen\` liever niet buiten MeBabs om, want dan klopt het register niet meer.
 
@@ -240,7 +257,8 @@ npm run build        # maakt dist/MeBabs.html
 1. de broncode uit `src/` (in een vaste volgorde, als één IIFE);
 2. **pdf-lib** (PDF maken en samenvoegen) en **JSZip** (Office-bestanden lezen en schrijven);
 3. **pdf.js**: de viewer, de tekstlaag en zoeken. Dit wordt met esbuild omgezet van ES-module naar een klassiek script, zodat het ook vanaf `file://` werkt;
-4. het icoon `src/icon.svg`, als favicon en logo.
+4. het icoon `src/icon.svg`, als favicon en logo;
+5. de Outlook-macro `outlook/MeBabs-weekagenda.bas`, zodat gebruikers die op de importpagina kunnen kopiëren.
 
 **Testen tijdens het ontwikkelen:** open `dist/MeBabs.html` in Edge of Chrome. Wil je de testhaken gebruiken, zet dan `window.__VA_TEST = 1` voordat het script laadt, bijvoorbeeld via Playwright `addInitScript`. Dan zijn interne functies beschikbaar onder `window.__va`.
 
@@ -253,7 +271,8 @@ mebabs/
 ├─ src/
 │  ├─ app.html           ← HTML-sjabloon en alle CSS
 │  ├─ mail-parser.js     ← .msg (CFB/OLE) en .eml (MIME) lezen; datum/tijd/locatie/link herkennen
-│  ├─ convert.js         ← omzetten naar PDF (Word/Excel/PowerPoint/tekst/afbeelding), aantekeningen
+│  ├─ convert.js         ← omzetten naar PDF (Word/Excel/tekst/afbeelding), aantekeningen
+│  ├─ pptx-render.js     ← PowerPoint-dia's getrouw tekenen (voor de PDF en de bewerkomgeving)
 │  │                       in de PDF zetten, vergadering exporteren als één PDF
 │  ├─ editor.js          ← bewerkomgevingen Word/Excel/PowerPoint/tekst met ongedaan maken en opnieuw
 │  ├─ notes.js           ← aantekeningen tijdens de vergadering en de actielijst (snooze, begindatum)
@@ -262,6 +281,8 @@ mebabs/
 │  ├─ app-ui.js          ← opslag (map / IndexedDB), routes, overzicht, vergaderpagina,
 │  │                       PDF-viewer met markeren/opmerkingen/zoeken
 │  └─ icon.svg           ← app-icoon (optie 2, Tafel)
+├─ outlook/
+│  └─ MeBabs-weekagenda.bas ← Outlook-macro: agenda van de komende 7 dagen opslaan als .ics
 ├─ icons/                ← vier icoonontwerpen als SVG, PNG en ICO
 ├─ docs/                 ← schermafbeeldingen voor deze README
 ├─ scripts/build.js      ← bouwscript
@@ -275,7 +296,9 @@ mebabs/
 ## Bekende beperkingen
 
 - **Alleen Edge of Chrome**, vanwege de File System Access API.
-- **Omzetten naar PDF gebeurt zonder Office:** de opmaak is vereenvoudigd. Oude formaten (`.doc`, `.xls`, `.ppt`) worden niet omgezet.
+- **Omzetten naar PDF gebeurt zonder Office:** bij Word en Excel is de opmaak vereenvoudigd. Oude formaten (`.doc`, `.xls`, `.ppt`) worden niet omgezet.
+- **PowerPoint:** dia's worden als afbeelding in de PDF gezet, met de tekst er onzichtbaar overheen (zodat zoeken werkt). Grafieken worden eenvoudig nagetekend (staaf, lijn, vlak, cirkel, ring); andere soorten grafieken, 3D-effecten, schaduwen, animaties en afbeeldingen in EMF/WMF-formaat worden niet of vereenvoudigd getoond. Lettertypen die niet op je computer staan, worden vervangen. Verborgen dia's komen niet in de PDF.
+- **Oudere PowerPoint-stukken** worden de eerste keer dat je ze opent opnieuw omgezet met de nieuwe weergave, behalve als je er al aantekeningen op hebt gezet. Dan blijft de oude PDF staan; sleep het bestand opnieuw op de vergadering voor de nieuwe weergave.
 - **Bewerken:** in Word kun je geen afbeeldingen of tabellen invoegen, en alinea's met een afbeelding kun je niet bewerken. In Excel kun je de opmaak van cellen niet veranderen. In PowerPoint kun je geen vormen of dia's toevoegen. Voor zulke dingen download je het bestand en bewerk je het in Office zelf.
 - **Mappen openen in Verkenner** vanuit MeBabs kan niet, want een browser mag dat niet. Open de map zelf via Verkenner.
 - **Toestemming:** Edge vraagt bij elke start één keer of MeBabs de map opnieuw mag gebruiken.

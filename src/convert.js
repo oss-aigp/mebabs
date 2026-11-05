@@ -1,5 +1,5 @@
   /* ================================================================== PDF: omzetten, samenvoegen */
-  var PL = W.PDFLib, CONV_VERSION = 1;
+  var PL = W.PDFLib, CONV_VERSION = 2;
   var A4 = [595.28, 841.89], A4L = [841.89, 595.28];
   var INK = PL.rgb(0.12, 0.14, 0.18), GREY = PL.rgb(0.45, 0.48, 0.53), LINE = PL.rgb(0.75, 0.78, 0.82), HEAD = PL.rgb(0.93, 0.95, 0.97), BLUE = PL.rgb(0.11, 0.31, 0.49);
   var WIN = (function () { var s = {}, i; for (i = 32; i < 127; i++) s[i] = 1; for (i = 160; i < 256; i++) s[i] = 1; '€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ'.split('').forEach(function (c) { s[c.charCodeAt(0)] = 1; }); return s; })();
@@ -283,102 +283,7 @@
     return ctx.doc.save();
   }
 
-  /* ---------- PowerPoint (.pptx) */
-  async function pptxToPdf(bytes) {
-    var z = await JSZip.loadAsync(bytes), pp = 'ppt/presentation.xml', pf = z.file(pp);
-    if (!pf) throw new Error('Geen PowerPoint-bestand');
-    var px = xmlDoc(await pf.async('string')), rels = await relsOf(z, pp), sz = desc(px, 'sldSz')[0];
-    var SW = sz ? +sz.getAttribute('cx') / 12700 : 720, SH = sz ? +sz.getAttribute('cy') / 12700 : 540, E = 12700;
-    var ctx = await newDoc(), w = new Writer(ctx, [SW, SH], 0);
-    var ids = desc(px, 'sldId');
-    for (var s = 0; s < ids.length; s++) {
-      var path = rels[ids[s].getAttribute('r:id')], sf = path && z.file(path);
-      if (!sf) continue;
-      var sx = xmlDoc(await sf.async('string')), srels = await relsOf(z, path), page = ctx.doc.addPage([SW, SH]);
-      page.drawRectangle({ x: 0, y: 0, width: SW, height: SH, borderColor: LINE, borderWidth: 0.6 });
-      var tree = desc(sx, 'spTree')[0];
-      PH = {};
-      var lay = Object.keys(srels).map(function (k) { return srels[k]; }).filter(function (t) { return t && /slideLayouts\//.test(t); })[0];
-      if (lay && z.file(lay)) {
-        var lx = xmlDoc(await z.file(lay).async('string')), lrels = await relsOf(z, lay);
-        var mas = Object.keys(lrels).map(function (k) { return lrels[k]; }).filter(function (t) { return t && /slideMasters\//.test(t); })[0];
-        if (mas && z.file(mas)) phFrom(xmlDoc(await z.file(mas).async('string')));
-        phFrom(lx);
-      }
-      await shapes(page, tree, { ox: 0, oy: 0, sx: 1, sy: 1, cx: 0, cy: 0 }, srels);
-      page.drawText(String(s + 1), { x: SW - 24, y: 10, size: 8, font: ctx.F.r, color: GREY });
-    }
-    if (!ids.length) { var pg = ctx.doc.addPage([SW, SH]); pg.drawText('Lege presentatie', { x: 30, y: SH / 2, size: 14, font: ctx.F.i }); }
-    return ctx.doc.save();
-
-    var PH = {};
-    function phFrom(x) {
-      desc(x, 'sp').forEach(function (sp) {
-        var ph = desc(sp, 'ph')[0]; if (!ph) return;
-        var xf = desc(ch(sp, 'spPr'), 'xfrm')[0], off = ch(xf, 'off'), ext = ch(xf, 'ext'); if (!off || !ext) return;
-        var b = { x: +off.getAttribute('x'), y: +off.getAttribute('y'), w: +ext.getAttribute('cx'), h: +ext.getAttribute('cy') }, t = ph.getAttribute('type') || 'body';
-        PH['t:' + t] = b; if (t === 'title') PH['t:ctrTitle'] = PH['t:ctrTitle'] || b; if (ph.getAttribute('idx')) PH['i:' + ph.getAttribute('idx')] = b;
-      });
-    }
-    function box(spPr, T) {
-      var xf = ch(spPr, 'xfrm'), off = ch(xf, 'off'), ext = ch(xf, 'ext');
-      if (!off || !ext) return null;
-      return { x: T.ox + (+off.getAttribute('x') - T.cx) * T.sx, y: T.oy + (+off.getAttribute('y') - T.cy) * T.sy, w: +ext.getAttribute('cx') * T.sx, h: +ext.getAttribute('cy') * T.sy };
-    }
-    async function shapes(page, tree, T, srels) {
-      var list = kids(tree);
-      for (var i = 0; i < list.length; i++) {
-        var el = list[i], l = el.localName;
-        if (l === 'sp' || l === 'graphicFrame') {
-          var ph = desc(el, 'ph')[0], type = ph ? (ph.getAttribute('type') || 'body') : '', b = box(ch(el, 'spPr') || ch(el, 'xfrm') && el, T);
-          if (l === 'graphicFrame') { var gx = ch(el, 'xfrm'); if (gx) { var o2 = ch(gx, 'off'), e2 = ch(gx, 'ext'); b = { x: T.ox + (+o2.getAttribute('x') - T.cx) * T.sx, y: T.oy + (+o2.getAttribute('y') - T.cy) * T.sy, w: +e2.getAttribute('cx') * T.sx, h: +e2.getAttribute('cy') * T.sy }; } }
-          var isTitle = /^(title|ctrTitle)$/.test(type);
-          if (!b && ph) b = PH['i:' + ph.getAttribute('idx')] || PH['t:' + type] || (type === 'ctrTitle' ? PH['t:title'] : null) || (type === 'subTitle' || /^\d+$/.test(type) || type === 'obj' ? PH['t:body'] : null);
-          if (!b) b = isTitle ? { x: SW * 0.06 * E, y: SH * 0.05 * E, w: SW * 0.88 * E, h: SH * 0.17 * E } : type === 'subTitle' ? { x: SW * 0.1 * E, y: SH * 0.55 * E, w: SW * 0.8 * E, h: SH * 0.25 * E } : { x: SW * 0.06 * E, y: SH * 0.25 * E, w: SW * 0.88 * E, h: SH * 0.68 * E };
-          var paras = desc(el, 'p').filter(function (p) { return p.namespaceURI && /drawingml/.test(p.namespaceURI); });
-          if (!paras.length) continue;
-          var base = isTitle ? (type === 'ctrTitle' ? 34 : 28) : type === 'subTitle' ? 18 : type === 'body' || /^\d+$/.test(type) || type === 'obj' ? 17 : 14;
-          var spec = paras.map(function (p) {
-            var pPr = ch(p, 'pPr'), lvl = +(pPr && pPr.getAttribute('lvl') || 0), runs = [], s0 = null;
-            kids(p).forEach(function (r) {
-              if (r.localName === 'r' || r.localName === 'fld') { var rp = ch(r, 'rPr'), t = ch(r, 't'); if (rp && rp.getAttribute('sz')) s0 = +rp.getAttribute('sz') / 100; runs.push({ t: t ? t.textContent : '', b: isTitle || (rp && rp.getAttribute('b') === '1'), i: rp && rp.getAttribute('i') === '1', sz: rp && rp.getAttribute('sz') ? +rp.getAttribute('sz') / 100 : null }); }
-              else if (r.localName === 'br') runs.push({ br: 1 });
-            });
-            var bul = !!(ch(pPr, 'buChar') || ch(pPr, 'buAutoNum')) || (!ch(pPr, 'buNone') && !isTitle && (type === 'body' || /^\d+$/.test(type) || type === 'obj') && runs.some(function (r) { return (r.t || '').trim(); }));
-            return { runs: runs, lvl: lvl, bul: bul, center: pPr && pPr.getAttribute('algn') === 'ctr' || type === 'ctrTitle' || type === 'subTitle' };
-          });
-          var bx = b.x / E, by = b.y / E, bw = Math.max(20, b.w / E), bh = Math.max(14, b.h / E);
-          for (var tries = 0, f = 1; tries < 6; tries++, f *= 0.85) {
-            var total = 0, laid = spec.map(function (sp) {
-              var size = base * f, ind = sp.lvl * 18 + (sp.bul ? 14 : 0);
-              var rr = sp.runs.map(function (r) { return { t: r.t, b: r.b, i: r.i, br: r.br, size: r.sz ? r.sz * f : null }; });
-              var L = w.layout(rr, size, bw - 8 - ind), ms = Math.max.apply(null, [size].concat(rr.map(function (r) { return r.size || 0; })));
-              total += Math.max(1, L.length) * ms * 1.2 + ms * 0.25; return { L: L, size: ms, ind: ind, sp: sp };
-            });
-            if (total <= bh + 4 || tries === 5) break;
-          }
-          var y = SH - by - 4;
-          laid.forEach(function (q) {
-            if (q.sp.bul && q.L.length) page.drawText('•', { x: bx + 4 + q.sp.lvl * 18, y: y - q.size, size: q.size, font: ctx.F.r, color: INK });
-            y = w.drawLines(page, q.L, bx + 4 + q.ind, y, q.size, { lh: 1.2, align: q.sp.center ? 'center' : '', w: bw - 8 - q.ind, color: isTitle ? BLUE : INK }) - q.size * 0.25;
-          });
-        } else if (l === 'pic') {
-          var bb = box(ch(el, 'spPr'), T), bl = desc(el, 'blip')[0], rid = bl && bl.getAttribute('r:embed'), ip = rid && srels[rid], zf = ip && z.file(ip);
-          if (!bb || !zf) continue;
-          var img = await embedImg(ctx.doc, await zf.async('uint8array'), guessMime(ip));
-          if (img) page.drawImage(img, { x: bb.x / E, y: SH - (bb.y + bb.h) / E, width: bb.w / E, height: bb.h / E });
-        } else if (l === 'grpSp') {
-          var gp = ch(el, 'grpSpPr'), xf = ch(gp, 'xfrm');
-          if (xf && ch(xf, 'off') && ch(xf, 'chOff')) {
-            var off = ch(xf, 'off'), ext = ch(xf, 'ext'), co = ch(xf, 'chOff'), ce = ch(xf, 'chExt');
-            var ox = T.ox + (+off.getAttribute('x') - T.cx) * T.sx, oy = T.oy + (+off.getAttribute('y') - T.cy) * T.sy;
-            var gsx = T.sx * ((+ext.getAttribute('cx') || 1) / (+ce.getAttribute('cx') || 1)), gsy = T.sy * ((+ext.getAttribute('cy') || 1) / (+ce.getAttribute('cy') || 1));
-            await shapes(page, el, { ox: ox, oy: oy, sx: gsx, sy: gsy, cx: +co.getAttribute('x'), cy: +co.getAttribute('y') }, srels);
-          } else await shapes(page, el, T, srels);
-        }
-      }
-    }
-  }
+  /* ---------- PowerPoint (.pptx): zie pptx-render.js */
 
   /* ---------- OpenDocument tekst (.odt) */
   async function odtToPdf(bytes) {

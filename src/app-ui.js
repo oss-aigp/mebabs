@@ -10,6 +10,7 @@
   function fmtLong(iso) { var d = isoDate(iso); return d ? d.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Geen datum'; }
   function fmtShort(iso) { var d = isoDate(iso); return d ? pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear() : '—'; }
   function safe(n) { return String(n || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 90) || 'bestand'; }
+  function isCal(f) { return /\.ics$/i.test(f.name) || f.type === 'text/calendar'; }
   function isMail(f) { return /\.(msg|eml)$/i.test(f.name) || f.type === 'message/rfc822' || f.type === 'application/vnd.ms-outlook'; }
   function toast(t, kind) { var e = $('#toast'); e.textContent = t; e.className = 'show ' + (kind || ''); clearTimeout(toast.t); toast.t = setTimeout(function () { e.className = ''; }, 4200); }
 
@@ -73,6 +74,8 @@
       if (moved) setTimeout(function () { toast('De map "' + st.name + '" is opnieuw ingedeeld: Vergaderingen, Aantekeningen en Actielijst.', 'ok'); }, 600);
     }
     for (var d of [MEET_DIR, NOTES_DIR, ACTS_DIR]) { try { await root.getDirectoryHandle(d, { create: true }); } catch (e) {} }
+    /* elke vergadering heeft een eigen map, ook zonder stukken (bijvoorbeeld geïmporteerd uit de agenda) */
+    try { var mdir = await root.getDirectoryHandle(MEET_DIR, { create: true }); for (var mi = 0; mi < A.data.meetings.length; mi++) { if (A.data.meetings[mi].folder) try { await mdir.getDirectoryHandle(A.data.meetings[mi].folder, { create: true }); } catch (e) {} } } catch (e) {}
     try { await writeNotesFiles(null); } catch (e) {}
   }
   async function useStore(st) {
@@ -130,7 +133,7 @@
     return {
       id: uid(), isNew: true, type: guessType(r.title), title: r.title || '(zonder titel)', location: r.location, link: r.link || '', date: nl2iso(r.date), start: r.start, end: r.end,
       chair: '', invitees: '', notes: r.notes,
-      source: { from: m.from || '', sent: m.sent && !isNaN(m.sent) ? m.sent.toISOString() : '', mail: file.name, skipped: m.skipped || [], how: r.src },
+      source: { from: m.from || '', sent: m.sent && !isNaN(m.sent) ? m.sent.toISOString() : '', mail: file.name, skipped: m.skipped || [], how: r.src, recurring: !!r.recurring },
       files: [], pending: m.attachments.map(function (a) { return { name: a.name, type: a.type || guessMime(a.name), blob: new Blob([a.data], { type: a.type }), on: !a.inline, inline: a.inline }; }),
       mailBlob: file
     };
@@ -161,11 +164,16 @@
     } catch (e) { console.error(e); f.conv = 'niet'; f.convErr = String(e.message || e); f.convV = CONV_VERSION; return null; }
   }
   async function getPdf(m, f) {
+    /* PowerPoint-stukken van vóór de nieuwe dia-weergave opnieuw omzetten (niet als er al aantekeningen op staan: die zouden verschuiven) */
+    if (f.pdf && f.conv === 'omgezet' && /\.(pptx|pptm|ppsx)$/i.test(f.name) && (f.convV || 1) < CONV_VERSION && !annCount(f.ann)) {
+      try { var r0 = await makePdf(m, f, await A.store.get(m, f.name)); await persist(); if (r0) return r0; } catch (e) { console.warn(e); }
+    }
     if (f.pdf) { try { return await A.store.get(m, f.pdf); } catch (e) { f.pdf = null; } }
     if (f.conv === 'niet' && f.convV === CONV_VERSION) return null;
     var r = await makePdf(m, f, await A.store.get(m, f.name)); await persist(); return r;
   }
   function agendaFirst(list) { return list.slice().sort(function (a, b) { return (/agenda/i.test(b.name) ? 1 : 0) - (/agenda/i.test(a.name) ? 1 : 0); }); }
+  async function ensureFolder(m) { if (A.store && A.store.kind === 'map' && m.folder) { try { await A.store.dir(m); } catch (e) { console.warn('Map aanmaken mislukt', e); } } }
   async function saveDraft(d) {
     var m = { id: d.id, type: d.type, title: d.title, location: d.location, link: d.link || '', date: d.date, start: d.start, end: d.end, chair: d.chair, invitees: d.invitees, notes: d.notes,
       source: d.source, files: [], created: new Date().toISOString() };
@@ -173,7 +181,7 @@
     var todo = agendaFirst((d.pending || []).filter(function (f) { return f.on; }));
     for (var i = 0; i < todo.length; i++) { toast('Stukken omzetten naar PDF… (' + (i + 1) + '/' + todo.length + ')'); await addFileTo(m, todo[i].name, todo[i].type, todo[i].blob); }
     if (d.mailBlob) { var mn = uniqueName(m, 'Originele mail' + (/\.msg$/i.test(d.mailBlob.name) ? '.msg' : '.eml')); await A.store.put(m, mn, d.mailBlob); m.source.file = mn; }
-    A.data.meetings.push(m); await persist();
+    A.data.meetings.push(m); await ensureFolder(m); await persist();
     return m;
   }
   function findDup(d) { return A.data.meetings.filter(function (m) { return m.date === d.date && m.title.toLowerCase() === (d.title || '').toLowerCase(); })[0]; }
@@ -181,6 +189,11 @@
   async function handleDrop(files) {
     if (!A.store) { toast('Kies eerst waar de gegevens bewaard worden.', 'warn'); return; }
     files = Array.prototype.slice.call(files);
+    var cals = files.filter(isCal);
+    if (cals.length && (location.hash === '#/weekagenda' || !currentMeeting())) {
+      try { await importCalendars(cals); } catch (e) { console.error(e); toast('Kon de agenda niet lezen: ' + (e.message || e), 'err'); }
+      return;
+    }
     var mails = files.filter(isMail), docs = files.filter(function (f) { return !isMail(f); });
     var cur = currentMeeting();
     try {
@@ -224,6 +237,212 @@
 
   var MEET_DIR = 'Vergaderingen', ACTS_DIR = 'Actielijst';
 
+  /* ------------------------------------------------------------- weekagenda (.ics-export uit Outlook) */
+  var OUTLOOK_MACRO = __OUTLOOK_MACRO__;
+  function renderWeekImport(res) {
+    var h = '<div class="crumb"><a href="#/">Vergaderingen</a> › Weekagenda importeren</div><div class="head"><h1>Weekagenda importeren</h1></div>';
+    if (res) h += res;
+    if (A.wkPlan) h += planHtml(A.wkPlan);
+    h += '<section class="card wk"><h2>1. Sla je agenda op in Outlook</h2>' +
+      '<p>Zo gaat het (onderaan staat hoe je hier een sneltoets voor maakt):</p><ol>' +
+      '<li>Ga in Outlook naar <b>Agenda</b> en klik links op je eigen agenda.</li>' +
+      '<li>Kies <b>Bestand</b> › <b>Agenda opslaan in bestand</b> en klik onderin op <b>Meer opties</b>.</li>' +
+      '<li>Kies bij <b>Datumbereik</b> bijvoorbeeld <i>Volgende 7 dagen</i> en bij <b>Detail</b> <i>Volledige details</i>. Wil je de bijlagen van afspraken als stukken, vink dan onder <b>Geavanceerd</b> ook <b>Bijlagen bij agenda-items opnemen</b> aan. Klik op <b>OK</b> en daarna op <b>Opslaan</b>.</li></ol>' +
+      '<h2>2. Lees het bestand hier in</h2>' +
+      '<p class="muted">Blokken, reistijd, uitloop en korte afspraken direct naast een andere vergadering worden niet geïmporteerd. <button type="button" class="link" id="wkIgn2">Aanpassen…</button></p>' +
+      '<div class="dz wkdz">Sleep het .ics-bestand hierheen of <button type="button" class="btn pri" id="icsPick">Kies het agendabestand…</button></div>' +
+      '<input type="file" id="pickIcs" accept=".ics,text/calendar" multiple hidden>' +
+      '<p class="muted">Je ziet eerst alle afspraken en vinkt aan wat je wilt importeren. Nieuwe afspraken worden vergaderingen. Bijlagen worden stukken; mails (.msg en .eml) worden daarbij omgezet naar PDF. Staat een afspraak er al, omdat je hem eerder importeerde of de uitnodiging erin sleepte, dan worden datum, tijd, locatie en vergaderlink bijgewerkt. Stukken en aantekeningen blijven staan. Je kunt dus elke week opnieuw importeren. Hele-dag-afspraken, geannuleerde afspraken en afspraken die al geweest zijn, worden overgeslagen. Een afspraak die je in Outlook verwijdert, blijft in MeBabs staan.</p></section>';
+    h += '<section class="card wk"><details><summary><b>Sneltoets zonder macro</b> <span class="muted">(werkt altijd, klassieke Outlook voor Windows)</span></summary>' +
+      '<p>Hiermee open je met één toetscombinatie het venster om de agenda op te slaan. De periode en Volledige details kies je daarna zelf.</p><ol>' +
+      '<li>Kies in Outlook <b>Bestand › Opties › Werkbalk Snelle toegang</b>.</li>' +
+      '<li>Kies bij <b>Kies opdrachten uit</b> de optie <b>Alle opdrachten</b>, selecteer <b>Opslaan als agenda</b> en klik op <b>Toevoegen</b>. Klik op <b>OK</b>.</li>' +
+      '<li>Ga naar <b>Agenda</b> en klik links op je eigen agenda. Druk op <b>Alt</b> om te zien welk cijfer bij de knop hoort: <b>Alt</b> plus dat cijfer opent het venster om de agenda op te slaan.</li>' +
+      '<li>Klik op <b>Meer opties</b>, kies <i>Volgende 7 dagen</i> en <i>Volledige details</i> (en eventueel <b>Bijlagen bij agenda-items opnemen</b>), klik op <b>OK</b> en <b>Opslaan</b>.</li></ol>' +
+      '<p class="muted">Zie je de werkbalk niet? Klik met de rechtermuisknop op het lint en kies <b>Werkbalk Snelle toegang weergeven</b>.</p></details></section>';
+    h += '<section class="card wk"><details><summary><b>Sneltoets met macro</b> <span class="muted">(alleen als je organisatie macro\'s toestaat)</span></summary><ol>' +
+      '<li>Druk in Outlook op <b>Alt+F11</b>. De Visual Basic-editor opent.</li>' +
+      '<li>Klik links met de rechtermuisknop op <b>Project1</b> en kies <b>Invoegen › Module</b>.</li>' +
+      '<li>Klik hieronder op <b>Code kopiëren</b>, plak de code in de lege module (Ctrl+V), druk op <b>Ctrl+S</b> en sluit de editor.</li>' +
+      '<li>Kies in Outlook <b>Bestand › Opties › Werkbalk Snelle toegang</b>. Kies bij <b>Kies opdrachten uit</b> de optie <b>Macro\'s</b>, selecteer <b>Project1.MeBabsWeekagenda</b> en klik op <b>Toevoegen</b>. Met <b>Wijzigen</b> geef je hem een icoon en de naam <i>MeBabs weekagenda</i>. Klik op <b>OK</b>.</li>' +
+      '<li>De knop staat nu bovenin Outlook. Druk op <b>Alt</b> om te zien welk cijfer erbij hoort: <b>Alt</b> plus dat cijfer is je sneltoets. Zie je de werkbalk niet? Klik met de rechtermuisknop op het lint en kies <b>Werkbalk Snelle toegang weergeven</b>.</li></ol>' +
+      '<p class="muted">De macro slaat de komende 7 dagen op. Wil je een andere periode, verander dan in de code het getal achter <code>DAGEN As Integer =</code>. Vraagt Outlook bij het starten of je macro\'s wilt inschakelen, kies dan <b>Macro\'s inschakelen</b>. Krijg je bij het opslaan een melding over het digitale certificaat, of wordt de macro geblokkeerd, dan staat je organisatie geen macro\'s toe. Gebruik dan de sneltoets zonder macro.</p>' +
+      '<textarea readonly class="macro" id="macro" spellcheck="false">' + esc(OUTLOOK_MACRO) + '</textarea>' +
+      '<p><button type="button" class="btn sm" id="macroCopy">Code kopiëren</button></p></details></section>';
+    setHTML($('#main'), h);
+    bindPlan();
+    $('#wkIgn2').onclick = function () { ignoreDialog(); };
+    var pk = $('#pickIcs');
+    $('#icsPick').onclick = function () { pk.click(); };
+    pk.onchange = function () { var f = this.files; if (f.length) handleDrop(f); this.value = ''; };
+    $('#macroCopy').onclick = async function () {
+      var ta = $('#macro'), ok = false;
+      try { await navigator.clipboard.writeText(OUTLOOK_MACRO); ok = true; } catch (e) { try { ta.focus(); ta.select(); ok = D.execCommand('copy'); } catch (e2) {} }
+      toast(ok ? 'De code staat op het klembord. Plak hem in Outlook met Ctrl+V.' : 'Kopiëren lukte niet. Selecteer de code en druk op Ctrl+C.', ok ? 'ok' : 'warn');
+    };
+  }
+  function calNorm(t) { return cleanSubject(t || '').toLowerCase(); }
+  function hasStuk(m, name) { var a = name.toLowerCase(), b = safe(name).toLowerCase(); return m.files.some(function (f) { return [f.name, f.pdf || ''].some(function (x) { x = x.toLowerCase(); return x === a || x === b; }); }); }
+  function isMailAtt(a) { return /\.(msg|eml)$/i.test(a.name) || /ms-outlook|rfc822/i.test(a.type || ''); }
+  function attTarget(a) { return isMailAtt(a) ? a.name.replace(/\.[^.]*$/, '') + '.pdf' : a.name; } /* mails worden als PDF opgeslagen */
+  /* Stap 1: het bestand lezen en laten zien wat er gebeurt. Er wordt nog niets opgeslagen. */
+  async function importCalendars(files) {
+    if (!A.store) { toast('Kies eerst waar de gegevens bewaard worden.', 'warn'); return; }
+    var plan = { items: [], skipDay: 0, skipCan: 0, names: [] }, found = 0, skipT = A.data.icsSkip || {};
+    for (var fi = 0; fi < files.length; fi++) {
+      var cal = parseCalendar(await files[fi].text()), name = files[fi].name;
+      found += cal.events; plan.names.push(name);
+      cal.items.forEach(function (it) {
+        if (it.allDay) { plan.skipDay++; return; }
+        if (it.cancelled) { plan.skipCan++; return; }
+        if (!it.title) { plan.skipNoTitle = (plan.skipNoTitle || 0) + 1; if (it.priv) plan.skipPriv = (plan.skipPriv || 0) + 1; return; } /* geen titel te vinden: niet importeren */
+        var r = analyse({ subject: it.title, text: it.text, html: it.html, start: it.start, end: it.end, allDay: false, location: it.location });
+        var p = { it: it, r: r, file: name, date: nl2iso(r.date), title: r.title || '(zonder titel)', link: r.link || findLink(it.teams, ''), inv: it.attendees.join(', ') };
+        p.ex = A.data.meetings.filter(function (m) { return m.icsKey === it.key; })[0] ||
+          A.data.meetings.filter(function (m) { return !m.icsKey && m.date === p.date && calNorm(m.title) === calNorm(p.title); })[0] || null;
+        p.atts = (it.atts || []).filter(function (a) { return !p.ex || !hasStuk(p.ex, attTarget(a)); });
+        if (!p.ex) p.status = 'nieuw';
+        else {
+          var e = p.ex, diff = ['date', 'start', 'end', 'title', 'location', 'link'].some(function (k) { var v = k === 'date' ? p.date : k === 'title' ? p.title : k === 'link' ? p.link : r[k]; return v && e[k] !== v; }) ||
+            (!e.invitees && p.inv) || (!e.notes && r.notes) || e.icsKey !== it.key || p.atts.length;
+          p.status = diff ? 'bijwerken' : 'ongewijzigd';
+        }
+        p.on = p.status !== 'ongewijzigd' && !skipT[calNorm(p.title)];
+        plan.items.push(p);
+      });
+    }
+    if (!found) { toast('In dit bestand staan geen afspraken. Sla in Outlook de agenda op als .ics-bestand.', 'warn'); return; }
+    markMinor(plan.items);
+    A.wkPlan = plan;
+    if (location.hash !== '#/weekagenda') { location.hash = '#/weekagenda'; return; }
+    renderWeekImport();
+  }
+  /* Waarschijnlijk geen echte vergadering: blokken, reistijd, uitloop, en korte afspraken (tot 20 minuten) die direct voor of na een andere afspraak liggen */
+  /* Instellingen voor wat niet geïmporteerd wordt: trefwoorden in de titel, en korte afspraken die direct voor of na een andere afspraak liggen */
+  var IGNORE_DEF = ['Blok', 'Blokken', 'Reistijd', 'Uitloop'];
+  function icsIgnore() { var g = A.data.icsIgnore || (A.data.icsIgnore = { words: IGNORE_DEF.slice(), shortOn: true, shortMin: 20 }); if (!g.words) g.words = IGNORE_DEF.slice(); if (g.shortMin == null) g.shortMin = 20; return g; }
+  function wordRe(w) { return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^\\p{L}\\p{N}])', 'iu'); }
+  function markMinor(items) {
+    var g = icsIgnore(), res = g.words.filter(Boolean).map(function (w) { return { w: w, re: wordRe(w) }; });
+    items.forEach(function (p) { p.minor = null; });
+    items.forEach(function (p) {
+      var hit = res.filter(function (r) { return r.re.test(p.title); })[0];
+      if (hit) { p.minor = 'trefwoord "' + hit.w + '"'; return; }
+      var st = p.it.start, en = p.it.end, dur = (en - st) / 60000;
+      if (g.shortOn && dur > 0 && dur <= g.shortMin && items.some(function (q) { return q !== p && !q.minor && (q.it.end - q.it.start) / 60000 > dur && Math.min(Math.abs(q.it.end - st), Math.abs(en - q.it.start)) <= 5 * 60000; })) p.minor = 'korte afspraak naast een andere vergadering';
+    });
+  }
+  function planHtml(plan) {
+    var shown = plan.items.filter(function (p) { return !p.minor; }), act = shown.filter(function (p) { return p.status !== 'ongewijzigd'; }), nOn = act.filter(function (p) { return p.on; }).length;
+    var skip = []; if (plan.skipDay) skip.push(plan.skipDay + ' hele-dag-afspraak' + (plan.skipDay === 1 ? '' : 'en')); if (plan.skipCan) skip.push(plan.skipCan + ' geannuleerd'); if (plan.skipNoTitle) skip.push(plan.skipNoTitle + ' zonder titel' + (plan.skipPriv ? ' (privé: vink in Outlook bij Meer opties ook Details van privé-items opnemen aan)' : ''));
+    var nMinor = plan.items.filter(function (p) { return p.minor; }).length;
+    var h = '<section class="card wkplan"><div class="wkhead"><h2>Kies wat je wilt importeren</h2><button type="button" class="btn sm" id="wkIgn">⚙ Niet importeren…</button></div><p class="muted">' + esc(plan.names.join(', ')) + ' · ' + shown.length + ' afspra' + (shown.length === 1 ? 'ak' : 'ken') + (skip.length ? ' · niet getoond: ' + skip.join(', ') : '') +
+      '. Vink uit wat je niet wilt importeren. Wat je uitvinkt, staat de volgende keer ook uit.</p>';
+    if (nMinor) h += '<p class="wklegend">' + nMinor + ' afspra' + (nMinor === 1 ? 'ak wordt' : 'ken worden') + ' overgeslagen (blokken, reistijd, uitloop of korte afspraken direct naast een andere vergadering). <button type="button" class="link" id="wkShowMin">' + (plan.showMinor ? 'Verbergen' : 'Toon welke') + '</button></p>' + (plan.showMinor ? '<ul class="wkmin">' + plan.items.filter(function (p) { return p.minor; }).map(function (p) { return '<li>' + esc(fmtShort(p.date)) + ' ' + esc((p.r.start || '') + (p.r.end ? '–' + p.r.end : '')) + ' <b>' + esc(p.title) + '</b> <span class="muted">(' + esc(p.minor) + ')</span></li>'; }).join('') + '</ul>' : '');
+    h += '<div class="tw"><table class="wkt"><thead><tr><th class="cb"><input type="checkbox" id="wkall" title="Alles aan of uit"' + (act.length && nOn === act.length ? ' checked' : '') + '></th><th>Datum</th><th>Tijd</th><th>Afspraak</th><th>Locatie</th><th>Bijlagen</th><th>Status</th></tr></thead><tbody>';
+    h += plan.items.map(function (p, i) {
+      if (p.minor) return '';
+      var r = p.r, dim = p.status === 'ongewijzigd';
+      return '<tr data-wk="' + i + '" class="' + (dim ? 'dim' : p.on ? 'sel' : 'off') + (p.minor ? ' minor' : '') + '"' + (p.minor ? ' title="Waarschijnlijk geen vergadering: ' + esc(p.minor) + '"' : '') + '><td class="cb">' + (dim ? '' : '<input type="checkbox"' + (p.on ? ' checked' : '') + '>') + '</td><td>' + esc(fmtShort(p.date)) + '</td><td>' + esc((r.start || '') + (r.end ? '–' + r.end : '')) + '</td><td><b>' + esc(p.title) + '</b></td><td>' + esc(r.location || '') + '</td>' +
+        '<td>' + (p.atts.length ? '<span title="' + esc(p.atts.map(function (a) { return attTarget(a); }).join('\n')) + '">📎 ' + p.atts.length + '</span>' : '') + '</td>' +
+        '<td><span class="pill' + (dim ? ' grey' : '') + '">' + (p.status === 'nieuw' ? 'Nieuw' : p.status === 'bijwerken' ? 'Bijwerken' : 'Staat er al') + '</span></td></tr>';
+    }).join('') + '</tbody></table></div>';
+    h += '<div class="wkacts"><button type="button" class="btn pri" id="wkGo"' + (nOn ? '' : ' disabled') + '>Importeer geselecteerde (' + nOn + ')</button><button type="button" class="btn" id="wkCancel">Annuleren</button></div></section>';
+    return h;
+  }
+  function bindPlan() {
+    var plan = A.wkPlan; if (!plan) return;
+    function refresh() {
+      var act = plan.items.filter(function (p) { return p.status !== 'ongewijzigd' && !p.minor; }), nOn = act.filter(function (p) { return p.on; }).length, go = $('#wkGo'), all = $('#wkall');
+      $$('tr[data-wk]').forEach(function (tr) { var p = plan.items[+tr.dataset.wk]; if (p.status === 'ongewijzigd') return; tr.className = (p.on ? 'sel' : 'off') + (p.minor ? ' minor' : ''); tr.querySelector('input').checked = p.on; });
+      go.textContent = 'Importeer geselecteerde (' + nOn + ')'; go.disabled = !nOn; all.checked = !!act.length && nOn === act.length;
+    }
+    $$('tr[data-wk]').forEach(function (tr) { var p = plan.items[+tr.dataset.wk]; if (p.status === 'ongewijzigd') return; tr.onclick = function () { p.on = !p.on; p.touched = true; refresh(); }; });
+    $('#wkall').onchange = function () { var on = this.checked; plan.items.forEach(function (p) { if (p.status !== 'ongewijzigd' && !p.minor) p.on = on; }); refresh(); };
+    var sm = $('#wkShowMin'); if (sm) sm.onclick = function () { plan.showMinor = !plan.showMinor; renderWeekImport(); };
+    $('#wkIgn').onclick = function () { ignoreDialog(); };
+    $('#wkCancel').onclick = function () { A.wkPlan = null; renderWeekImport(); toast('Er is niets geïmporteerd.'); };
+    $('#wkGo').onclick = function () { this.disabled = true; applyPlan(plan); };
+  }
+  /* Dialoogvenster: trefwoorden en instellingen voor wat niet geïmporteerd wordt, en eerder uitgevinkte titels */
+  function ignoreDialog() {
+    var g = icsIgnore(), dlg = D.createElement('div');
+    dlg.className = 'dlgbg';
+    function draw() {
+      var skipT = Object.keys(A.data.icsSkip || {}).sort();
+      setHTML(dlg, '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT"><h2 id="dlgT">Niet importeren</h2>' +
+        '<p class="muted">Afspraken met een van deze woorden in de titel worden overgeslagen. Hoofdletters maken niet uit.</p>' +
+        '<div class="chips">' + (g.words.length ? g.words.map(function (w, i) { return '<span class="chip">' + esc(w) + '<button type="button" data-rmw="' + i + '" title="Verwijderen" aria-label="' + esc(w) + ' verwijderen">✕</button></span>'; }).join('') : '<span class="muted">Geen trefwoorden.</span>') + '</div>' +
+        '<form class="addw" id="addW"><input id="newW" placeholder="Nieuw trefwoord, bijv. Lunch of Focustijd" autocomplete="off"><button type="submit" class="btn sm">Toevoegen</button></form>' +
+        '<label class="chk2"><input type="checkbox" id="shortOn"' + (g.shortOn ? ' checked' : '') + '> Ook afspraken van <input type="number" id="shortMin" min="5" max="60" step="5" value="' + g.shortMin + '"> minuten of korter overslaan als ze direct voor of na een andere vergadering liggen</label>' +
+        (skipT.length ? '<h3>Eerder uitgevinkt</h3><p class="muted">Deze titels staan bij een volgende import standaard uit. Haal ze hier weg om ze weer aan te zetten.</p><div class="chips">' + skipT.map(function (t) { return '<span class="chip grey">' + esc(t) + '<button type="button" data-rmt="' + esc(t) + '" title="Weghalen">✕</button></span>'; }).join('') + '</div>' : '') +
+        '<div class="dlgacts"><button type="button" class="btn" id="dlgReset">Standaard herstellen</button><span class="sp"></span><button type="button" class="btn pri" id="dlgClose">Klaar</button></div></div>');
+      $$('[data-rmw]', dlg).forEach(function (b) { b.onclick = function () { g.words.splice(+b.dataset.rmw, 1); changed(); }; });
+      $$('[data-rmt]', dlg).forEach(function (b) { b.onclick = function () { delete A.data.icsSkip[b.dataset.rmt]; changed(); }; });
+      $('#addW', dlg).onsubmit = function (e) { e.preventDefault(); var v = $('#newW', dlg).value.trim(); if (v && !g.words.some(function (w) { return w.toLowerCase() === v.toLowerCase(); })) g.words.push(v); changed(); var n = $('#newW', dlg); if (n) n.focus(); };
+      $('#shortOn', dlg).onchange = function () { g.shortOn = this.checked; changed(true); };
+      $('#shortMin', dlg).onchange = function () { g.shortMin = Math.max(5, Math.min(60, +this.value || 20)); changed(true); };
+      $('#dlgReset', dlg).onclick = function () { g.words = IGNORE_DEF.slice(); g.shortOn = true; g.shortMin = 20; changed(); };
+      $('#dlgClose', dlg).onclick = close;
+    }
+    function changed(keep) {
+      persist();
+      if (A.wkPlan) { markMinor(A.wkPlan.items); var skipT = A.data.icsSkip || {}; A.wkPlan.items.forEach(function (p) { if (p.status !== 'ongewijzigd' && !p.minor && !p.touched) p.on = !skipT[calNorm(p.title)]; }); }
+      if (!keep) draw();
+    }
+    function close() { dlg.remove(); D.removeEventListener('keydown', esc1); if ((location.hash || '') === '#/weekagenda') renderWeekImport(); }
+    function esc1(e) { if (e.key === 'Escape') close(); }
+    dlg.onclick = function (e) { if (e.target === dlg) close(); };
+    D.addEventListener('keydown', esc1);
+    draw(); D.body.appendChild(dlg); var n = $('#newW', dlg); if (n) n.focus();
+  }
+  /* Stap 2: de aangevinkte afspraken opslaan, met bijlagen als stukken (mails omgezet naar PDF). */
+  async function applyPlan(plan) {
+    var now = new Date().toISOString(), made = [], upd = [], nAtt = 0, failAtt = [], skipT = A.data.icsSkip || (A.data.icsSkip = {}), titlesOn = {};
+    var todo = plan.items.filter(function (p) { return p.status !== 'ongewijzigd' && !p.minor; });
+    todo.forEach(function (p) { if (p.on) titlesOn[calNorm(p.title)] = 1; });
+    todo.forEach(function (p) { var k = calNorm(p.title); if (titlesOn[k]) delete skipT[k]; else skipT[k] = 1; });
+    var sel = todo.filter(function (p) { return p.on; }), totalAtt = sel.reduce(function (n, p) { return n + p.atts.length; }, 0);
+    try {
+      for (var i = 0; i < sel.length; i++) {
+        var p = sel[i], r = p.r, m = p.ex;
+        if (m) {
+          ['date', 'start', 'end', 'title', 'location', 'link'].forEach(function (k) { var v = k === 'date' ? p.date : k === 'title' ? p.title : k === 'link' ? p.link : r[k]; if (v) m[k] = v; });
+          if (!m.invitees && p.inv) m.invitees = p.inv;
+          if (!m.notes && r.notes) m.notes = r.notes;
+          m.icsKey = p.it.key; m.updated = now; upd.push(m); await ensureFolder(m);
+        } else {
+          m = { id: uid(), type: guessType(p.title), title: p.title, location: r.location || '', link: p.link, date: p.date, start: r.start, end: r.end, chair: '', invitees: p.inv, notes: r.notes || '',
+            source: { from: '', sent: '', mail: p.file, skipped: [], how: 'agenda-export' }, files: [], created: now, icsKey: p.it.key };
+          m.folder = safe((m.date || 'zonder datum') + ' ' + m.title).slice(0, 70) + ' [' + m.id.slice(-4) + ']';
+          A.data.meetings.push(m); made.push(m); await ensureFolder(m);
+        }
+        for (var j = 0; j < p.atts.length; j++) {
+          var a = p.atts[j], blob = new Blob([a.data], { type: a.type || guessMime(a.name) });
+          toast('Stukken toevoegen… (' + (nAtt + failAtt.length + 1) + '/' + totalAtt + ') ' + a.name);
+          try {
+            if (isMailAtt(a)) {
+              var cv = null; try { cv = await convertToPdf(a.name, a.type || guessMime(a.name), blob); } catch (e) { console.error(e); }
+              if (cv && cv.bytes) await addFileTo(m, attTarget(a), 'application/pdf', new Blob([cv.bytes], { type: 'application/pdf' }));
+              else await addFileTo(m, a.name, a.type, blob);
+            } else await addFileTo(m, a.name, a.type, blob);
+            nAtt++;
+          } catch (e) { console.error(e); failAtt.push(a.name); }
+        }
+      }
+    } finally { await persist(); }
+    A.wkPlan = null;
+    var res = '<div class="info ' + (failAtt.length ? 'warn' : 'ok') + '">Geïmporteerd: <b>' + made.length + ' nieuw</b>, ' + upd.length + ' bijgewerkt' + (nAtt ? ', ' + nAtt + ' stuk' + (nAtt === 1 ? '' : 'ken') + ' toegevoegd' : '') + '.' + (failAtt.length ? ' Niet gelukt: ' + esc(failAtt.join(', ')) + '.' : '') + '</div>';
+    var rows = made.map(function (m) { return [m, 'Nieuw']; }).concat(upd.map(function (m) { return [m, 'Bijgewerkt']; }))
+      .sort(function (a, b) { return ((a[0].date || '') + (a[0].start || '')).localeCompare((b[0].date || '') + (b[0].start || '')); });
+    if (rows.length) res += '<section class="card"><div class="tw"><table><thead><tr><th>Datum</th><th>Tijd</th><th>Vergadering</th><th>Stukken</th><th></th></tr></thead><tbody>' + rows.map(function (x) {
+      var m = x[0]; return '<tr data-id="' + esc(m.id) + '"><td>' + esc(fmtShort(m.date)) + '</td><td>' + esc((m.start || '') + (m.end ? '–' + m.end : '')) + '</td><td><b>' + esc(m.title) + '</b></td><td>' + (m.files.length || '') + '</td><td><span class="pill">' + x[1] + '</span></td></tr>';
+    }).join('') + '</tbody></table></div></section>';
+    renderWeekImport(res);
+    $$('#main tr[data-id]').forEach(function (tr) { tr.onclick = function () { location.hash = '#/v/' + encodeURIComponent(tr.dataset.id); }; });
+    toast('Import klaar.', 'ok');
+  }
+
   /* ------------------------------------------------------------- weergave */
   function route() {
     var h = location.hash || '#/'; $('#main').classList.remove('detail');
@@ -235,6 +454,7 @@
     A.draft = null;
     var rm = /^#\/verslag\/(.+)$/.exec(h);
     if (rm) { var rmm = byId(decodeURIComponent(rm[1])); if (rmm) return renderReport(rmm); }
+    if (h === '#/weekagenda') { var wr = A.wkRes; A.wkRes = null; return renderWeekImport(wr); }
     if (h === '#/verslagen') return renderReports();
     if (h === '#/acties') return renderActions();
     if (h === '#/bestanden') return renderFiles(true);
@@ -297,7 +517,7 @@
       return (!f.year || (m.date || '').slice(0, 4) === f.year) &&
         (!q || [m.title, m.location, m.chair, m.invitees, m.minutes].join(' ').toLowerCase().indexOf(q) >= 0);
     });
-    var h = '<div class="head"><h1>Vergaderingen</h1><div class="acts"><button class="btn" id="imp">Mail importeren…</button><a class="btn pri" href="#/nieuw" id="new">+ Nieuwe vergadering</a></div></div>';
+    var h = '<div class="head"><h1>Vergaderingen</h1><div class="acts"><a class="btn" href="#/weekagenda" title="Je Outlook-agenda van de komende dagen in één keer inlezen">📅 Importeer weekagenda</a><button class="btn" id="imp">Mail importeren…</button><a class="btn pri" href="#/nieuw" id="new">+ Nieuwe vergadering</a></div></div>';
     h += '<div class="dropbar">Sleep een mail of agenda-uitnodiging uit Outlook naar dit venster. Er wordt dan een vergadering aangemaakt, met de stukken als bijlage.</div>';
     h += '<section class="card today"><h2>Vandaag <span class="muted">' + esc(fmtLong(t)) + '</span></h2>';
     if (today.length) {
@@ -309,13 +529,18 @@
     h += '<section class="card"><div class="filters"><input id="q" type="search" placeholder="Zoeken op titel, locatie, namen of aantekeningen…" value="' + esc(f.q) + '">' +
       '<select id="fYear"><option value="">Alle jaren</option>' + Object.keys(years).sort().reverse().map(function (y) { return '<option' + (f.year === y ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>';
     var cols = [['title', 'Titel'], ['date', 'Datum'], ['start', 'Start'], ['end', 'Eind'], ['location', 'Locatie'], ['files', 'Stukken']];
+    var hs = A.hsel || (A.hsel = {}); Object.keys(hs).forEach(function (id) { if (!byId(id)) delete hs[id]; });
+    var nSel = Object.keys(hs).length;
+    h += '<div class="bulkbar" id="bulkbar"' + (nSel ? '' : ' hidden') + '><b id="bulkN"></b><button type="button" class="btn sm danger" id="bulkDel">🗑 Verwijderen</button><button type="button" class="link" id="bulkClr">Selectie opheffen</button></div>';
     function tbl(rows, empty, arch) {
       rows = sorted(rows, arch);
-      var o = '<div class="tw"><table><thead><tr>' + cols.map(function (c) { var on = A.sort.key === c[0], dn = A.sort.dir * (arch && c[0] === 'date' ? -1 : 1) < 0; return '<th class="c-' + c[0] + (on ? ' on' : '') + '" data-sort="' + c[0] + '">' + c[1] + '<i>' + (on ? (dn ? '▼' : '▲') : '↕') + '</i></th>'; }).join('') + '</tr></thead><tbody>';
-      o += rows.length ? rows.map(function (m) { return row(m, cols.map(function (c) { return c[0]; })); }).join('') : '<tr><td colspan="6" class="empty">' + empty + '</td></tr>';
+      var allOn = rows.length && rows.every(function (m) { return hs[m.id]; });
+      var o = '<div class="tw"><table class="mtb"><thead><tr><th class="cb"><input type="checkbox" data-all="' + (arch ? 'arch' : 'up') + '" title="Alles in deze lijst selecteren"' + (allOn ? ' checked' : '') + '></th>' + cols.map(function (c) { var on = A.sort.key === c[0], dn = A.sort.dir * (arch && c[0] === 'date' ? -1 : 1) < 0; return '<th class="c-' + c[0] + (on ? ' on' : '') + '" data-sort="' + c[0] + '">' + c[1] + '<i>' + (on ? (dn ? '▼' : '▲') : '↕') + '</i></th>'; }).join('') + '</tr></thead><tbody>';
+      o += rows.length ? rows.map(function (m) { return row(m, cols.map(function (c) { return c[0]; })).replace('<tr data-id="' + esc(m.id) + '">', '<tr data-id="' + esc(m.id) + '"' + (hs[m.id] ? ' class="sel"' : '') + '><td class="cb"><input type="checkbox" data-hs="' + esc(m.id) + '"' + (hs[m.id] ? ' checked' : '') + '></td>'); }).join('') : '<tr><td colspan="7" class="empty">' + empty + '</td></tr>';
       return o + '</tbody></table></div>';
     }
-    var upcoming = list.filter(function (m) { return !m.date || m.date >= t; }), past = list.filter(function (m) { return m.date && m.date < t; });
+    var upcoming = list.filter(function (m) { return !m.date || m.date > t; }), past = list.filter(function (m) { return m.date && m.date < t; });
+    A.hlists = { up: sorted(upcoming), arch: sorted(past, true) };
     h += tbl(upcoming, ms.length ? (past.length ? 'Geen komende vergaderingen' + (q || f.year ? ' met deze filters' : '') + '. Eerdere vergaderingen staan in het archief.' : 'Geen vergaderingen gevonden met deze filters.') : 'Nog geen vergaderingen. Sleep een mail naar dit venster om te beginnen.');
     h += '<p class="note">' + upcoming.length + ' komende vergadering' + (upcoming.length === 1 ? '' : 'en') + ' · Klik op een kolomkop om te sorteren.</p></section>';
     h += '<section class="card arch"><button type="button" class="archbtn" id="arch"><span>' + (A.showArch ? '▾' : '▸') + '</span> 🗄 Archief <span class="muted">' + past.length + ' eerdere vergadering' + (past.length === 1 ? '' : 'en') + (q || f.year ? ' met deze filters' : '') + '</span><span class="sp"></span><span class="link">' + (A.showArch ? 'verbergen' : 'tonen') + '</span></button>';
@@ -326,10 +551,43 @@
     $('#imp').onclick = function () { $('#pickMail').click(); };
     bindFolders($('#main'));
     $('#new').onclick = function () { A.draft = blankDraft(); };
-    $$('[data-id]').forEach(function (r) { r.onclick = function (e) { if (e.target.tagName !== 'A') location.hash = '#/v/' + encodeURIComponent(r.dataset.id); }; });
+    $$('[data-id]').forEach(function (r) { r.onclick = function (e) { if (e.target.tagName === 'A') return; if (e.target.closest('td.cb')) return; location.hash = '#/v/' + encodeURIComponent(r.dataset.id); }; });
+    function updBulk() {
+      var n = Object.keys(hs).length, bar = $('#bulkbar'); if (!bar) return;
+      bar.hidden = !n; $('#bulkN').textContent = n + ' vergadering' + (n === 1 ? '' : 'en') + ' geselecteerd';
+      $$('tr[data-id]').forEach(function (tr) { var on = !!hs[tr.dataset.id], cb = tr.querySelector('input[data-hs]'); tr.classList.toggle('sel', on); if (cb) cb.checked = on; });
+      $$('[data-all]').forEach(function (cb) { var l = A.hlists[cb.dataset.all] || []; cb.checked = !!l.length && l.every(function (m) { return hs[m.id]; }); });
+    }
+    $$('td.cb').forEach(function (td) { td.onclick = function (e) { e.stopPropagation(); var cb = td.querySelector('input'); if (e.target !== cb) cb.checked = !cb.checked; if (cb.checked) hs[cb.dataset.hs] = 1; else delete hs[cb.dataset.hs]; updBulk(); }; });
+    $$('[data-all]').forEach(function (cb) { cb.onclick = function (e) { e.stopPropagation(); }; cb.onchange = function () { var on = cb.checked; (A.hlists[cb.dataset.all] || []).forEach(function (m) { if (on) hs[m.id] = 1; else delete hs[m.id]; }); updBulk(); }; });
+    var bd = $('#bulkDel'); if (bd) bd.onclick = function () { deleteMeetings(Object.keys(hs).map(byId).filter(Boolean)); };
+    var bc = $('#bulkClr'); if (bc) bc.onclick = function () { Object.keys(hs).forEach(function (k) { delete hs[k]; }); updBulk(); };
+    updBulk();
     $$('[data-sort]').forEach(function (th) { th.onclick = function () { var k = th.dataset.sort; A.sort = { key: k, dir: A.sort.key === k ? -A.sort.dir : 1 }; renderHome(); }; });
     var qi = $('#q'); qi.oninput = function () { A.f.q = qi.value; var pos = qi.selectionStart; renderHome(); var n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
     $('#fYear').onchange = function () { A.f.year = this.value; renderHome(); };
+  }
+
+  /* Meerdere vergaderingen verwijderen, met alles wat erbij hoort: de map met stukken en originele mail, de aantekeningen en de acties. */
+  async function deleteMeetings(list) {
+    if (!list.length) return;
+    var names = list.slice(0, 12).map(function (m) { return '• ' + (m.date ? fmtShort(m.date) + ' ' : '') + m.title; }).join('\n') + (list.length > 12 ? '\n… en nog ' + (list.length - 12) : '');
+    if (!confirm(list.length + ' vergadering' + (list.length === 1 ? '' : 'en') + ' verwijderen?\n\n' + names + '\n\nAlles wat erbij hoort wordt gewist: de stukken, de originele mails, de gewijzigde versies, de aantekeningen en de acties. Dit kun je niet ongedaan maken.')) return;
+    var fail = [], nd = null;
+    if (A.store.kind === 'map') { try { nd = await A.store.root.getDirectoryHandle(NOTES_DIR); } catch (e) {} }
+    for (var i = 0; i < list.length; i++) {
+      var m = list[i];
+      toast('Verwijderen… (' + (i + 1) + '/' + list.length + ')');
+      try { await A.store.delMeeting(m); } catch (e) { console.error(e); fail.push(m.title); continue; }
+      if (nd && m.minutesFile) { try { await nd.removeEntry(m.minutesFile); } catch (e) {} }
+      A.data.meetings = A.data.meetings.filter(function (x) { return x !== m; });
+      if (A.hsel) delete A.hsel[m.id];
+    }
+    await persist();
+    try { await writeNotesFiles(null); } catch (e) {}
+    if (typeof FX !== 'undefined') FX.items = null;
+    var sy = W.scrollY; renderSide(); renderHome(); W.scrollTo(0, Math.min(sy, D.documentElement.scrollHeight));
+    toast(fail.length ? 'Niet alles kon worden verwijderd: ' + fail.join(', ') : (list.length - fail.length) + ' vergadering' + (list.length - fail.length === 1 ? '' : 'en') + ' verwijderd.', fail.length ? 'err' : 'ok');
   }
 
   function renderDetail(m) {
@@ -338,7 +596,7 @@
     h += '<div class="crumb"><a href="#/">Vergaderingen</a> › ' + esc(isNew ? 'Nieuwe vergadering' : fmtLong(m.date)) + '</div>';
     if (isNew && m.source) {
       var miss = []; if (!m.date) miss.push('datum'); if (!m.start) miss.push('tijd');
-      h += '<div class="info ' + (miss.length ? 'warn' : 'ok') + '">' + (m.source.how === 'agenda-uitnodiging' ? 'Gegevens overgenomen uit de agenda-uitnodiging.' : 'Gegevens uit de tekst van de mail gehaald.') + (miss.length ? ' Er is geen ' + miss.join(' en ') + ' gevonden. Vul dat zelf in.' : ' Controleer alles en klik op Opslaan.') + '</div>';
+      h += '<div class="info ' + (miss.length ? 'warn' : 'ok') + '">' + (m.source.how === 'agenda-export' ? 'Gegevens overgenomen uit je Outlook-agenda.' : m.source.how === 'agenda-uitnodiging' ? 'Gegevens overgenomen uit de agenda-uitnodiging.' + (m.source.recurring ? ' Dit is een terugkerende afspraak: datum en tijd zijn van de eerstvolgende keer.' : '') : 'Gegevens uit de tekst van de mail gehaald.') + (miss.length ? ' Er is geen ' + miss.join(' en ') + ' gevonden. Vul dat zelf in.' : ' Controleer alles en klik op Opslaan.') + '</div>';
     }
     h += '<form class="card meta" id="frm" autocomplete="off"><div class="mtop"><input class="ttl" name="title" required placeholder="Titel van de vergadering" value="' + esc(m.title) + '">' +
       '<button type="submit" class="btn pri" id="save">Opslaan</button>' + (isNew ? '' : '<button type="button" class="btn' + (A.notesOpen ? ' on' : '') + '" id="npToggle" title="Kolom voor aantekeningen tijdens de vergadering">✎ Aantekeningen</button><button type="button" class="btn" id="exp">Exporteer als één PDF</button><button type="button" class="btn red" id="del" title="Vergadering verwijderen">Verwijder</button>') + '<a class="btn" href="#/">Terug</a></div>';
@@ -363,7 +621,8 @@
     if (!list.length) h += '<li class="muted empty">Nog geen stukken.</li>';
     h += '</ul><div class="dz small">Sleep documenten of een mail hierheen</div>';
     if (m.source && m.source.skipped && m.source.skipped.length) h += '<p class="note">Niet overgenomen (Outlook-items in de mail): ' + esc(m.source.skipped.join(', ')) + '</p>';
-    if (m.source) h += '<p class="note">Uit de mail' + (m.source.from ? ' van ' + esc(m.source.from) : '') + (m.source.sent ? ', ' + esc(new Date(m.source.sent).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' })) : '') + '.' + (m.source.file && !isNew ? ' <a href="#" id="origMail">Originele mail</a>' : '') + '</p>';
+    if (m.source && m.source.how === 'agenda-export') h += '<p class="note">Uit je Outlook-agenda.</p>';
+    else if (m.source) h += '<p class="note">Uit de mail' + (m.source.from ? ' van ' + esc(m.source.from) : '') + (m.source.sent ? ', ' + esc(new Date(m.source.sent).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' })) : '') + '.' + (m.source.file && !isNew ? ' <a href="#" id="origMail">Originele mail</a>' : '') + '</p>';
     h += '</section><section class="card pv" id="pv"></section><section class="card np" id="np"></section></div>';
     setHTML($('#main'), h); $('#main').classList.add('detail');
 

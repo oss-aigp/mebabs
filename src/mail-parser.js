@@ -81,7 +81,8 @@
     m = new RegExp(';\\s*' + name + '\\s*=\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|([^;]*))', 'i').exec(vv);
     return m ? decodeWords((m[1] != null ? m[1] : m[2]).trim()) : '';
   }
-  function b64(s) { try { return bin2u8(atob(s.replace(/[^A-Za-z0-9+/]/g, '').replace(/^(.*?)(.{0,3})$/, function (a, x, y) { return x + y + '==='.slice((x + y).length % 4 || 4); }))); } catch (e) { return new Uint8Array(0); } }
+  /* atob accepteert base64 zonder opvulling (=); een losse rest van 1 teken kan niet en wordt weggelaten */
+  function b64(s) { try { s = s.replace(/[^A-Za-z0-9+/]/g, ''); if (s.length % 4 === 1) s = s.slice(0, -1); return bin2u8(atob(s)); } catch (e) { return new Uint8Array(0); } }
   function qp(s) { return bin2u8(s.replace(/=\r?\n/g, '').replace(/=([0-9A-Fa-f]{2})/g, function (x, hx) { return String.fromCharCode(parseInt(hx, 16)); })); }
 
   function parsePart(bin, out, depth) {
@@ -117,20 +118,197 @@
     else if (type === 'text/html' && out.html == null) out.html = decodeText(bytes, cs);
     return h;
   }
+  function icsDt(v) {
+    var m = /(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?/.exec(v || ''); if (!m) return null;
+    if (m[7]) return new Date(Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]));
+    return new Date(+m[1], m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  }
   function parseIcs(t) {
     if (!t) return null;
     t = t.replace(/\r?\n[ \t]/g, '');
-    var ev = t.split(/BEGIN:VEVENT/i)[1]; if (!ev) return null;
-    ev = ev.split(/END:VEVENT/i)[0];
-    function g(k) { var m = new RegExp('^' + k + '((?:;[^:\\r\\n]*)?):(.*)$', 'im').exec(ev); return m ? m[2].trim() : ''; }
+    var evs = t.split(/BEGIN:VEVENT/i).slice(1).map(function (x) { return x.split(/END:VEVENT/i)[0]; }); if (!evs.length) return null;
+    function ga(ev, k) { var re = new RegExp('^' + k + '((?:;[^:\\r\\n]*)?):(.*)$', 'img'), m, o = []; while ((m = re.exec(ev))) o.push(m[2].trim()); return o; }
+    function g(ev, k) { return ga(ev, k)[0] || ''; }
     function un(s) { return s.replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1'); }
-    function dt(v) {
-      var m = /(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?/.exec(v); if (!m) return null;
-      if (m[7]) return new Date(Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]));
-      return new Date(+m[1], m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+    var ev = evs.filter(function (x) { return g(x, 'RRULE') && !g(x, 'RECURRENCE-ID'); })[0] || evs.filter(function (x) { return !g(x, 'RECURRENCE-ID'); })[0] || evs[0];
+    var s = g(ev, 'DTSTART'), e = g(ev, 'DTEND');
+    var out = { title: un(g(ev, 'SUMMARY')), location: un(g(ev, 'LOCATION')), start: icsDt(s), end: icsDt(e), allDay: !/T\d/.test(s) };
+    var rr = g(ev, 'RRULE');
+    if (rr && out.start) {
+      try {
+        var ex = {}, extras = [];
+        ga(ev, 'EXDATE').forEach(function (v) { v.split(',').forEach(function (x) { var d = icsDt(x); if (d) ex[dayKey(d)] = 1; }); });
+        evs.forEach(function (x) {
+          var rid = g(x, 'RECURRENCE-ID'); if (x === ev || !rid) return;
+          var o = icsDt(rid); if (o) ex[dayKey(o)] = 1;
+          var st = icsDt(g(x, 'DTSTART')), en = icsDt(g(x, 'DTEND'));
+          if (st && !/^CANCELLED$/i.test(g(x, 'STATUS'))) extras.push({ start: st, end: en || st });
+        });
+        var nx = nextOccurrence(icsRule(rr), out.start, out.end ? out.end - out.start : 0, ex, extras);
+        if (nx) { out.next = nx; out.recurring = true; }
+      } catch (er) { console.warn('Herhaling niet gelezen', er); }
     }
-    var s = g('DTSTART'), e = g('DTEND');
-    return { title: un(g('SUMMARY')), location: un(g('LOCATION')), start: dt(s), end: dt(e), allDay: !/T\d/.test(s) };
+    return out;
+  }
+  /* ------------------------------------------------------------------ terugkerende afspraken: eerstvolgende keer */
+  var ICSDAY = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+  function dayKey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function icsRule(rr) {
+    var p = {}; rr.split(';').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) p[kv.slice(0, i).toUpperCase()] = kv.slice(i + 1).toUpperCase(); });
+    var f = { DAILY: 'D', WEEKLY: 'W', MONTHLY: 'M', YEARLY: 'Y' }[p.FREQ]; if (!f) return null;
+    var R = { f: f, I: Math.max(1, +p.INTERVAL || 1), count: +p.COUNT || 0, until: p.UNTIL ? icsDt(p.UNTIL) : null, wkst: p.WKST in ICSDAY ? ICSDAY[p.WKST] : 1 };
+    if (p.BYDAY) {
+      var nth = null;
+      R.days = p.BYDAY.split(',').map(function (x) { var m = /^([+-]?\d+)?(SU|MO|TU|WE|TH|FR|SA)$/.exec(x.trim()); if (!m) return -1; if (m[1] && nth == null) nth = +m[1]; return ICSDAY[m[2]]; }).filter(function (x) { return x >= 0; });
+      if (f !== 'W') R.nth = nth != null ? nth : p.BYSETPOS ? +p.BYSETPOS.split(',')[0] : 0;
+    }
+    if (p.BYMONTHDAY) R.mday = +p.BYMONTHDAY.split(',')[0];
+    if (p.BYMONTH) R.month = +p.BYMONTH.split(',')[0] - 1;
+    return R;
+  }
+  /* Outlook PidLidAppointmentRecur (MS-OXOCAL 2.2.1.44). Datums zijn minuten sinds 1601 in lokale tijd. */
+  function outlookRecur(b) {
+    if (!b || b.length < 50) return null;
+    var o = 0;
+    function u16() { var v = b[o] | b[o + 1] << 8; o += 2; return v; }
+    function u32() { var v = rd(b, o); o += 4; return v; }
+    function loc(min) { var d = new Date(min * 60000 - 11644473600000); return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes()); }
+    function mask(m) { var a = []; for (var i = 0; i < 7; i++) if (m & (1 << i)) a.push(i); return a; }
+    o = 4; var freq = u16(), pt = u16(); u16(); u32(); var period = u32(); u32();
+    var R = { I: 1, wkst: 0 };
+    if (pt === 0) { R.f = 'D'; R.I = Math.max(1, Math.round(period / 1440)); }
+    else if (pt === 1) { R.f = 'W'; R.I = Math.max(1, period); R.days = mask(u32()); }
+    else if (pt === 2) { R.f = 'M'; R.I = Math.max(1, period); R.mday = u32(); }
+    else if (pt === 3) { R.f = 'M'; R.I = Math.max(1, period); R.days = mask(u32()); var n = u32(); R.nth = n >= 5 ? -1 : n; }
+    else if (pt === 4) { R.f = 'M'; R.I = Math.max(1, period); R.mday = -1; u32(); }
+    else return null; /* Hijri-kalender e.d. */
+    if (freq === 0x200D && R.f === 'M' && R.I < 12) R.I = 12;
+    var endType = u32(), cnt = u32(); R.wkst = u32() % 7;
+    var ex = {}, nDel = u32(), i;
+    for (i = 0; i < nDel; i++) ex[dayKey(loc(u32()))] = 1;
+    var nMod = u32(); o += nMod * 4;
+    var startDate = loc(u32()), endDate = loc(u32());
+    if (endType === 0x2021) R.until = endDate; else if (endType === 0x2022) R.count = cnt;
+    u32(); u32(); var so = u32(), eo = u32();
+    var first = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, so);
+    var extras = [];
+    try {
+      var nEx = u16();
+      for (i = 0; i < nEx; i++) {
+        var es = u32(), ee = u32(); u32(); var fl = u16();
+        if (fl & 1) { u16(); o += u16(); }
+        if (fl & 2) o += 4; if (fl & 4) o += 4; if (fl & 8) o += 4;
+        if (fl & 0x10) { u16(); o += u16(); }
+        if (fl & 0x20) o += 4; if (fl & 0x40) o += 4; if (fl & 0x80) o += 4; if (fl & 0x100) o += 4;
+        if (o > b.length) break;
+        extras.push({ start: loc(es), end: loc(ee) });
+      }
+    } catch (er) {}
+    return nextOccurrence(R, first, (eo - so) * 60000, ex, extras);
+  }
+  /* Eerste keer vanaf vandaag (op datum). Geen volgende meer (reeks afgelopen)? Dan null. */
+  function nextOccurrence(R, first, dur, ex, extras) {
+    if (!R || !first || isNaN(first)) return null;
+    var today = new Date(), best = null; today.setHours(0, 0, 0, 0);
+    walkOccurrences(R, first, ex, function (d) { if (d >= today) { best = d; return true; } });
+    var res = best ? { start: best, end: new Date(best.getTime() + dur) } : null;
+    (extras || []).forEach(function (e) { if (e.start >= today || (e.end && e.end >= today && new Date(e.start.getFullYear(), e.start.getMonth(), e.start.getDate()) >= today)) { if (!res || e.start < res.start) res = { start: e.start, end: e.end || e.start }; } });
+    return res;
+  }
+  /* Loopt de keren van een reeks af, op volgorde, zonder de uitgezonderde datums. cb(start) geeft true om te stoppen. */
+  function walkOccurrences(R, first, ex, cb) {
+    if (!R || !first || isNaN(first)) return;
+    var base = new Date(first.getFullYear(), first.getMonth(), first.getDate()), hh = first.getHours(), mi = first.getMinutes();
+    var untilDay = R.until ? new Date(R.until.getFullYear(), R.until.getMonth(), R.until.getDate()) : null;
+    function add(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+    function inMonth(y, m) {
+      var dim = new Date(y, m + 1, 0).getDate(), out = [], d;
+      if (R.days && R.days.length) {
+        var all = []; for (d = 1; d <= dim; d++) { var x = new Date(y, m, d); if (R.days.indexOf(x.getDay()) >= 0) all.push(x); }
+        if (!R.nth) return all;
+        var pick = R.nth > 0 ? all[R.nth - 1] : all[all.length + R.nth]; return pick ? [pick] : [];
+      }
+      var md = R.mday || base.getDate(); md = md < 0 ? dim + md + 1 : Math.min(md, dim);
+      out.push(new Date(y, m, md)); return out;
+    }
+    function period(k) {
+      if (R.f === 'D') return [add(base, k * R.I)];
+      if (R.f === 'W') {
+        var ws = add(base, -((base.getDay() - R.wkst + 7) % 7)), st = add(ws, k * R.I * 7), days = R.days && R.days.length ? R.days : [base.getDay()];
+        return days.map(function (dw) { return add(st, (dw - R.wkst + 7) % 7); }).sort(function (a, b) { return a - b; });
+      }
+      if (R.f === 'M') { var mm = base.getMonth() + k * R.I; return inMonth(base.getFullYear() + Math.floor(mm / 12), ((mm % 12) + 12) % 12); }
+      if (R.f === 'Y') return inMonth(base.getFullYear() + k * R.I, R.month != null ? R.month : base.getMonth());
+      return [];
+    }
+    var n = 0, stop = false;
+    for (var k = 0; k < 40000 && !stop; k++) {
+      var ds = period(k);
+      for (var j = 0; j < ds.length; j++) {
+        var d = ds[j]; if (d < base) continue;
+        n++;
+        if ((R.count && n > R.count) || (untilDay && d > untilDay)) { stop = true; break; }
+        if (ex && ex[dayKey(d)]) continue;
+        if (cb(new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mi))) { stop = true; break; }
+      }
+    }
+  }
+  /* Een hele agenda (.ics), bijvoorbeeld een export uit Outlook: alle afspraken in de periode, terugkerende afspraken uitgevouwen.
+     Elke afspraak krijgt een vaste sleutel (UID + datum), zodat opnieuw importeren bijwerkt in plaats van dubbel aanmaakt. */
+  function parseCalendar(t) {
+    t = String(t || '').replace(/\r?\n[ \t]/g, '');
+    function ga(ev, k) { var re = new RegExp('^' + k + '((?:;[^:\\r\\n]*)?):(.*)$', 'img'), m, o = []; while ((m = re.exec(ev))) o.push(m[2].trim()); return o; }
+    function g(ev, k) { return ga(ev, k)[0] || ''; }
+    function un(s) { return s.replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1'); }
+    function day(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    var head = t.split(/BEGIN:VEVENT/i)[0], cs = icsDt(g(head, 'X-CALSTART')), ce = icsDt(g(head, 'X-CALEND'));
+    var today = day(new Date()), from = cs && day(cs) > today ? day(cs) : today;
+    var to = ce ? day(new Date(ce.getTime() - 1)) : null, isExport = !!(cs || ce);
+    var evs = t.split(/BEGIN:VEVENT/i).slice(1).map(function (x) { return x.split(/END:VEVENT/i)[0]; });
+    var items = [], byUid = {}, order = [];
+    evs.forEach(function (ev, i) { var u = g(ev, 'UID') || 'zonder-uid-' + i; if (!byUid[u]) { byUid[u] = []; order.push(u); } byUid[u].push(ev); });
+    function push(it) { var dd = day(it.start); if (dd < from || (to && dd > to)) return; items.push(it); }
+    /* base: de reeks waar een gewijzigde keer bij hoort. Outlook zet in zo'n gewijzigde keer vaak alleen wat anders is;
+       titel, locatie, beschrijving, genodigden en bijlagen komen dan van de reeks. */
+    function mk(ev, u, start, end, orig, base) {
+      function gb(k) { return g(ev, k) || (base ? g(base, k) : ''); }
+      var att = [], re = /^(?:ORGANIZER|ATTENDEE)([^:\r\n]*):/img, m, src = base && !/^(ORGANIZER|ATTENDEE)/im.test(ev) ? base : ev; /* organisator eerst: in MeBabs is de eerste genodigde de voorzitter */
+      while ((m = re.exec(src))) {
+        var cn = /;CN=("?)([^";:]+)\1/i.exec(m[1]); if (!cn) continue;
+        var nm = cn[2].trim().replace(/^([^,]+),\s*([^,]+)$/, '$2 $1').replace(/\s*,\s*/g, ' '); /* "Vries, Piet de" -> "Piet de Vries": een komma scheidt in MeBabs personen */
+        if (nm && att.indexOf(nm) < 0) att.push(nm);
+      }
+      var s = gb('SUMMARY'), atts = [], are = /^ATTACH((?:;(?:"[^"]*"|[^;:"\r\n])*)*):(.*)$/img, am, asrc = base && !/^ATTACH/im.test(ev) ? base : ev;
+      while ((am = are.exec(asrc))) { /* bijlagen die Outlook in de export meestuurt (base64) */
+        var pr = am[1]; if (!/ENCODING=BASE64/i.test(pr) && !/VALUE=BINARY/i.test(pr)) continue;
+        var fnm = /;(?:X-)?FILENAME=("?)([^";]+)\1/i.exec(pr), fmt = /;FMTTYPE=("?)([^";]+)\1/i.exec(pr);
+        var fname = fnm ? fnm[2].trim() : 'bijlage', data = b64(am[2]);
+        if (!data || !data.length || /^image\d+\.(png|jpe?g|gif)$/i.test(fname)) continue;
+        atts.push({ name: fname, type: fmt ? fmt[2] : guessMime(fname), data: data });
+      }
+      return { key: u + '|' + dayKey(orig || start), atts: atts, title: un(s).trim(), location: un(gb('LOCATION')), start: start, end: end || start, allDay: !/T\d/.test(g(ev, 'DTSTART') || (base ? g(base, 'DTSTART') : '')),
+        text: un(gb('DESCRIPTION')), html: un(gb('X-ALT-DESC')), teams: gb('X-MICROSOFT-SKYPETEAMSMEETINGURL'), attendees: att, priv: /^(PRIVATE|CONFIDENTIAL)$/i.test(gb('CLASS')),
+        cancelled: /^CANCELLED$/i.test(g(ev, 'STATUS')) || /^\s*(geannuleerd|canceled|cancelled)\s*:/i.test(s) };
+    }
+    order.forEach(function (u) {
+      var list = byUid[u], master = list.filter(function (e) { return !g(e, 'RECURRENCE-ID'); })[0], ex = {};
+      list.forEach(function (o) {
+        var rid = g(o, 'RECURRENCE-ID'); if (!rid) return;
+        var od = icsDt(rid), st = icsDt(g(o, 'DTSTART')); if (od) ex[dayKey(od)] = 1;
+        if (st) push(mk(o, u, st, icsDt(g(o, 'DTEND')) || (master && icsDt(g(master, 'DTEND')) && icsDt(g(master, 'DTSTART')) ? new Date(st.getTime() + (icsDt(g(master, 'DTEND')) - icsDt(g(master, 'DTSTART')))) : null), od, master));
+      });
+      if (!master) return;
+      var st = icsDt(g(master, 'DTSTART')), en = icsDt(g(master, 'DTEND')); if (!st) return;
+      var dur = en ? en - st : 0, rr = g(master, 'RRULE');
+      if (!rr) { push(mk(master, u, st, en)); return; }
+      ga(master, 'EXDATE').forEach(function (v) { v.split(',').forEach(function (x) { var d = icsDt(x); if (d) ex[dayKey(d)] = 1; }); });
+      var R = icsRule(rr); if (!R) return;
+      if (!isExport) { var nx = nextOccurrence(R, st, dur, ex, []); if (nx) push(mk(master, u, nx.start, nx.end)); return; }
+      var lim = to || new Date(from.getFullYear(), from.getMonth(), from.getDate() + 90), n = 0;
+      walkOccurrences(R, st, ex, function (d) { if (day(d) > lim || ++n > 2000) return true; if (day(d) >= from) push(mk(master, u, d, new Date(d.getTime() + dur))); });
+    });
+    items.sort(function (a, b) { return a.start - b.start; });
+    return { items: items, from: from, to: to, isExport: isExport, events: evs.length };
   }
   function parseEml(buf) {
     var bin = u82bin(new Uint8Array(buf)), out = { attachments: [] };
@@ -139,7 +317,7 @@
     return {
       subject: decodeWords(h.subject || ''), from: decodeWords(h.from || '').replace(/\s*<[^>]*>\s*$/, '').replace(/^"|"$/g, ''),
       sent: h.date ? new Date(h.date) : null, text: out.text != null ? out.text : (out.html ? htmlToText(out.html) : ''),
-      start: ics && ics.start, end: ics && ics.end, allDay: ics && ics.allDay, location: (ics && ics.location) || '', icsTitle: ics && ics.title,
+      start: ics && ics.start, end: ics && ics.end, allDay: ics && ics.allDay, next: ics && ics.next, location: (ics && ics.location) || '', icsTitle: ics && ics.title,
       attachments: out.attachments, skipped: [], html: out.html || ''
     };
   }
@@ -231,6 +409,7 @@
     var start = ft(props[tag(named[APPT + ':' + 0x820D], 0x40)]) || ft(props[0x00600040]);
     var end = ft(props[tag(named[APPT + ':' + 0x820E], 0x40)]) || ft(props[0x00610040]);
     var allDay = props[tag(named[APPT + ':' + 0x8215], 0x0B)]; allDay = !!(allDay && allDay.lo & 1);
+    var next = null; try { next = outlookRecur(bin(top, named[APPT + ':' + 0x8216])); } catch (er) { console.warn('Herhaling niet gelezen', er); }
     var atts = [], skipped = [];
     Object.keys(top).filter(function (n) { return /^__attach_version1\.0_#/i.test(n); }).sort().forEach(function (n) {
       var st = c.kids(top[n]), fp = fixed(st, 8);
@@ -243,7 +422,7 @@
     });
     return {
       subject: str(top, 0x37), from: str(top, 0x0C1A) || str(top, 0x42), sent: ft(props[0x00390040]),
-      text: body, start: start, end: end, allDay: allDay, location: str(top, named[APPT + ':' + 0x8208]),
+      text: body, start: start, end: end, allDay: allDay, next: next, location: str(top, named[APPT + ':' + 0x8208]),
       attachments: atts, skipped: skipped, html: html || ''
     };
   }
@@ -303,8 +482,9 @@
     var pri = clean.filter(function (l) { return /^(wanneer|when|datum|date|tijd|tijdstip|tijdstip en datum|op)\b/i.test(l); });
     var r = { title: cleanSubject(m.icsTitle || m.subject), location: m.location || '', date: '', start: '', end: '', src: 'tekst' };
     if (m.start) {
-      r.date = fmtDate(m.start); r.src = 'agenda-uitnodiging';
-      if (!m.allDay) { r.start = fmtTime(m.start); if (m.end) r.end = fmtTime(m.end); }
+      var st = m.next ? m.next.start : m.start, en = m.next ? m.next.end : m.end;
+      r.date = fmtDate(st); r.src = 'agenda-uitnodiging'; r.recurring = !!m.next;
+      if (!m.allDay) { r.start = fmtTime(st); if (en) r.end = fmtTime(en); }
     } else {
       var pools = pri.concat([r.title, m.subject]).concat(clean), found = null, line = '';
       for (i = 0; i < pools.length && !found; i++) { found = findDate(pools[i] || ''); if (found) line = pools[i]; }
